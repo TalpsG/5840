@@ -1,0 +1,587 @@
+2024/10/16 22:27:03 term :   0 , me : 0 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:03 term :   0 , me : 1 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:03 term :   0 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:03 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , has vote other2
+2024/10/16 22:27:03 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:03 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , has vote other2
+2024/10/16 22:27:03 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:03 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:03 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:03 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:03 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:2
+2024/10/16 22:27:03 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:2
+2024/10/16 22:27:03 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 1
+2024/10/16 22:27:03 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:03 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 1
+2024/10/16 22:27:03 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:03 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:03 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:03 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:03 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:3
+2024/10/16 22:27:03 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:03 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:03 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:3
+2024/10/16 22:27:03 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:03 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:03 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:04 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:04 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:05 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:05 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:06 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:06 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:06 term :   3 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   0 , me : 0 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:06 term :   0 , me : 1 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:06 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:06 term :   0 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:06 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:06 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:06 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:06 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , has vote other2
+2024/10/16 22:27:06 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:06 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:2
+2024/10/16 22:27:06 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:2
+2024/10/16 22:27:06 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 1
+2024/10/16 22:27:06 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 1
+2024/10/16 22:27:06 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:06 term :   2 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:06 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:07 term :   2 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:07 term :   2 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:07 term :   2 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:3
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 3 2
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:07 term :   2 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:07 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 1 leader_term : 2
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 1 leader_term : 2
+2024/10/16 22:27:07 term :   2 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:07 term :   3 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 1 leader_term : 2
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 1 leader_term : 2
+2024/10/16 22:27:07 term :   3 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:07 term :   4 , me : 1 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , term_bigger,log_newer : 0:4
+2024/10/16 22:27:07 term :   4 , me : 2 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , term_bigger,log_newer : 0:4
+2024/10/16 22:27:07 term :   4 , me : 2 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 4 0
+2024/10/16 22:27:07 term :   4 , me : 2 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:07 term :   4 , me : 1 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 4 0
+2024/10/16 22:27:07 term :   4 , me : 1 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:07 term :   4 , me : 2 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:07 term :   4 , me : 1 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:07 term :   4 , me : 2 , state :   0 , vote_for :   0 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:07 term :   5 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:5
+2024/10/16 22:27:07 term :   5 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 2
+2024/10/16 22:27:07 term :   5 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:07 term :   5 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:5
+2024/10/16 22:27:07 term :   5 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 2
+2024/10/16 22:27:07 term :   5 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:08 term :   5 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:08 term :   5 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:08 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:08 term :   5 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:08 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:08 term :   5 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:08 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:08 term :   6 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:08 term :   6 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:08 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:09 term :   7 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:09 term :   7 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:09 term :   8 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:09 term :   9 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   8 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:09 term :   9 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:09 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  10 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:11
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:10 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:10 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 2 leader_term : 5
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 2 leader_term : 5
+2024/10/16 22:27:10 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :   5 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :  11 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:10 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:10 term :  11 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:10 term :  11 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:10 term :   0 , me : 0 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   0 , me : 1 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   0 , me : 2 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   1 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:1
+2024/10/16 22:27:10 term :   0 , me : 3 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   1 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , has vote other2
+2024/10/16 22:27:10 term :   0 , me : 4 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   1 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , has vote other2
+2024/10/16 22:27:10 term :   0 , me : 5 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:10 term :   1 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , has vote other2
+2024/10/16 22:27:10 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:10 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:10 term :   1 , me : 3 , state :   1 , vote_for :   3 , vote_num :   1 , hb : false , has vote other3
+2024/10/16 22:27:10 term :   1 , me : 4 , state :   1 , vote_for :   4 , vote_num :   1 , hb : false , has vote other4
+2024/10/16 22:27:10 term :   1 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , has vote other5
+2024/10/16 22:27:10 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:10 term :   1 , me : 3 , state :   1 , vote_for :   3 , vote_num :   1 , hb : false , has vote other3
+2024/10/16 22:27:10 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:10 term :   1 , me : 4 , state :   1 , vote_for :   4 , vote_num :   1 , hb : false , has vote other4
+2024/10/16 22:27:10 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:10 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   2 , hb : false , has vote other2
+2024/10/16 22:27:10 term :   1 , me : 4 , state :   1 , vote_for :   4 , vote_num :   1 , hb : false , has vote other4
+2024/10/16 22:27:10 term :   1 , me : 0 , state :   1 , vote_for :   0 , vote_num :   1 , hb : false , has vote other0
+2024/10/16 22:27:10 term :   1 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , has vote other5
+2024/10/16 22:27:10 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:10 term :   1 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , has vote other5
+2024/10/16 22:27:10 term :   1 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:10 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   2 , hb : false , has vote other2
+2024/10/16 22:27:10 term :   1 , me : 3 , state :   1 , vote_for :   3 , vote_num :   1 , hb : false , has vote other3
+2024/10/16 22:27:10 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   2 , hb : false , has vote other2
+2024/10/16 22:27:11 term :   1 , me : 2 , state :   1 , vote_for :   2 , vote_num :   2 , hb : false , candidate start next election
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:2
+2024/10/16 22:27:11 term :   2 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:2
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:2
+2024/10/16 22:27:11 term :   1 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   1 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :  -1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_equal,log_newer,can_vote : 2
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_equal,log_newer,can_vote : 2
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:11 term :   2 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:11 term :   3 , me : 3 , state :   1 , vote_for :   3 , vote_num :   1 , hb : false , curr_term > args.term , Leader_id : 2 leader_term : 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 2 2
+2024/10/16 22:27:11 term :   2 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   3 , me : 3 , state :   1 , vote_for :   3 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:12 term :   4 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:4
+2024/10/16 22:27:12 term :   4 , me : 2 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:4
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:4
+2024/10/16 22:27:12 term :   4 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 4 3
+2024/10/16 22:27:12 term :   4 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   4 , me : 2 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 4 3
+2024/10/16 22:27:12 term :   4 , me : 2 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 4 3
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   2 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:12 term :   4 , me : 2 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   2 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   2 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:12 term :   4 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:12 term :   4 , me : 2 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:12 term :   3 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:12 term :   4 , me : 0 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , term_bigger,log_newer : 5:4
+2024/10/16 22:27:12 term :   4 , me : 4 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , term_bigger,log_newer : 5:4
+2024/10/16 22:27:12 term :   4 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:12 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:12 term :   4 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:12 term :   5 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:5
+2024/10/16 22:27:12 term :   5 , me : 6 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:5
+2024/10/16 22:27:12 term :   5 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:5
+2024/10/16 22:27:12 term :   5 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:5
+2024/10/16 22:27:12 term :   5 , me : 6 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 1
+2024/10/16 22:27:12 term :   5 , me : 6 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   5 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 1
+2024/10/16 22:27:12 term :   5 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   5 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 1
+2024/10/16 22:27:12 term :   5 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   5 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 5 1
+2024/10/16 22:27:12 term :   5 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   5 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   5 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:12 term :   5 , me : 6 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   5 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:12 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:6
+2024/10/16 22:27:12 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:6
+2024/10/16 22:27:12 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:6
+2024/10/16 22:27:12 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:12 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:12 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:12 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:12 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:12 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   5 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   5 , me : 6 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   6 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:13 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:13 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 6 2
+2024/10/16 22:27:13 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   6 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   6 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   6 , me : 4 , state :   1 , vote_for :   4 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , term_bigger,log_newer : 4:7
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , term_bigger,log_newer : 4:7
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , term_bigger,log_newer : 4:7
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   6 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:13 term :   6 , me : 6 , state :   1 , vote_for :   6 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 7 4
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   7 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:13 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:13 term :   4 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   7 , me : 2 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 3 leader_term : 4
+2024/10/16 22:27:13 term :   7 , me : 6 , state :   1 , vote_for :   6 , vote_num :   1 , hb : false , curr_term > args.term , Leader_id : 3 leader_term : 4
+2024/10/16 22:27:13 term :   8 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , curr_term > args.term , Leader_id : 3 leader_term : 4
+2024/10/16 22:27:13 term :   7 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 3 leader_term : 4
+2024/10/16 22:27:13 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:13 term :   7 , me : 6 , state :   1 , vote_for :   6 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:13 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , term_bigger,log_newer : 6:8
+2024/10/16 22:27:13 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , term_bigger,log_newer : 6:8
+2024/10/16 22:27:13 term :   8 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , has vote other1
+2024/10/16 22:27:13 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , term_bigger,log_newer : 6:8
+2024/10/16 22:27:13 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:13 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:13 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   8 , me : 1 , state :   1 , vote_for :   1 , vote_num :   1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:13 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:13 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:13 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:14 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:14 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:14 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 8 6
+2024/10/16 22:27:14 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   7 , me : 5 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:14 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   7 , me : 4 , state :   2 , vote_for :   4 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   8 , me : 0 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : true , curr_term > args.term , Leader_id : 4 leader_term : 7
+2024/10/16 22:27:14 term :   8 , me : 3 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 4 leader_term : 7
+2024/10/16 22:27:14 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 4 leader_term : 7
+2024/10/16 22:27:14 term :   8 , me : 2 , state :   0 , vote_for :   6 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 4 leader_term : 7
+2024/10/16 22:27:14 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   8 , me : 1 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:9
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:9
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:9
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:9
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:14 term :   9 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   9 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 9 1
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:14 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   9 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:14 term :   9 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:15 term :   9 , me : 5 , state :   1 , vote_for :   5 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:15 term :  10 , me : 3 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , term_bigger,log_newer : 5:10
+2024/10/16 22:27:15 term :  10 , me : 1 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , term_bigger,log_newer : 5:10
+2024/10/16 22:27:15 term :  10 , me : 4 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , term_bigger,log_newer : 5:10
+2024/10/16 22:27:15 term :  10 , me : 4 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 10 5
+2024/10/16 22:27:15 term :  10 , me : 4 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  10 , me : 1 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 10 5
+2024/10/16 22:27:15 term :  10 , me : 1 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  10 , me : 3 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 10 5
+2024/10/16 22:27:15 term :  10 , me : 3 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  10 , me : 1 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :   9 , me : 2 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:15 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:15 term :  10 , me : 3 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  10 , me : 4 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  10 , me : 1 , state :   0 , vote_for :   5 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:15 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:15 term :  11 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:11
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:11
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , term_bigger,log_newer : 1:11
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  11 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:15 term :  11 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 11 1
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  10 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : true , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :   8 , me : 6 , state :   2 , vote_for :   6 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 1 , state :   2 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 5 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , curr_term > args.term , Leader_id : 6 leader_term : 8
+2024/10/16 22:27:15 term :  11 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:15 term :   9 , me : 0 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:15 term :  11 , me : 3 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:15 term :  12 , me : 5 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:12
+2024/10/16 22:27:15 term :  12 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:12
+2024/10/16 22:27:15 term :  12 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , term_bigger,log_newer : 3:12
+2024/10/16 22:27:15 term :  12 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 12 3
+2024/10/16 22:27:15 term :  12 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  12 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 12 3
+2024/10/16 22:27:15 term :  12 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  12 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  12 , me : 5 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 12 3
+2024/10/16 22:27:15 term :  12 , me : 5 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:15 term :  12 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  12 , me : 5 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:15 term :  11 , me : 4 , state :   0 , vote_for :   1 , vote_num :  -1 , hb : false , follower dont recv hb , start election
+2024/10/16 22:27:15 term :  12 , me : 3 , state :   2 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:15 term :  12 , me : 0 , state :   0 , vote_for :   4 , vote_num :  -1 , hb : false , term_bigger,log_newer : 4:12
+2024/10/16 22:27:15 term :  12 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , has vote other2
+2024/10/16 22:27:15 term :  12 , me : 5 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:15 term :  12 , me : 1 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:15 term :  12 , me : 6 , state :   0 , vote_for :   3 , vote_num :  -1 , hb : false , has vote other3
+2024/10/16 22:27:16 term :  12 , me : 2 , state :   1 , vote_for :   2 , vote_num :   1 , hb : false , candidate start next election
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , term_bigger,log_newer : 2:13
+2024/10/16 22:27:16 term :  13 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , follower recv hb
+2024/10/16 22:27:16 term :  13 , me : 2 , state :   2 , vote_for :   2 , vote_num :  -1 , hb : false , leader BroadcastHeartBeat
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 1 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 0 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 4 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 5 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 6 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : false , curr_term < args.term , become follower , 13 2
+2024/10/16 22:27:16 term :  13 , me : 3 , state :   0 , vote_for :   2 , vote_num :  -1 , hb : true , hb reply
+ok  	6.5840/raft	13.515s
