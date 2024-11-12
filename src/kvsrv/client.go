@@ -4,7 +4,6 @@ import "6.5840/labrpc"
 import "crypto/rand"
 import "math/big"
 
-
 type Clerk struct {
 	server *labrpc.ClientEnd
 	// You will have to modify this struct.
@@ -37,7 +36,11 @@ func MakeClerk(server *labrpc.ClientEnd) *Clerk {
 func (ck *Clerk) Get(key string) string {
 
 	// You will have to modify this function.
-	return ""
+	reply := GetReply{}
+	args := GetArgs{Key: key}
+	for !ck.server.Call("KVServer.Get", &args, &reply) {
+	}
+	return reply.Value
 }
 
 // shared by Put and Append.
@@ -50,7 +53,22 @@ func (ck *Clerk) Get(key string) string {
 // arguments. and reply must be passed as a pointer.
 func (ck *Clerk) PutAppend(key string, value string, op string) string {
 	// You will have to modify this function.
-	return ""
+	opid := nrand()
+	args := PutAppendArgs{
+		Key:   key,
+		Value: value,
+		OpId:  opid,
+		Msg:   Modify,
+	}
+	reply := PutAppendReply{}
+	cmd := "KVServer." + op
+	for !ck.server.Call(cmd, &args, &reply) {
+	}
+	args.Msg = Report
+	for !ck.server.Call(cmd, &args, &reply) {
+	}
+
+	return reply.Value
 }
 
 func (ck *Clerk) Put(key string, value string) {
