@@ -19,7 +19,6 @@ package raft
 
 import (
 	//	"bytes"
-	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -73,8 +72,9 @@ type Raft struct {
 	// Your data here (3A, 3B, 3C).
 	// Look at the paper's Figure 2 for a description of what
 	// state a Raft server must maintain.
+	state     State
 	curr_term int
-	voteFor   int
+	vote_for  int
 	log       []Entry
 
 	// volatile state
@@ -85,8 +85,9 @@ type Raft struct {
 	next_idx  []int
 	match_idx []int
 
-	election_timer time.Timer
-	hb_timer       time.Timer
+	vote_recv int
+	// counter
+	counter int
 }
 
 // return currentTerm and whether this server
@@ -96,6 +97,9 @@ func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isleader bool
 	// Your code here (3A).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	term, isleader = rf.curr_term, rf.state == Leader
 	return term, isleader
 }
 
@@ -169,7 +173,7 @@ type AppendEntriesArgs struct {
 	LeaderId     int
 	PrevLogIdx   int
 	PrevLogTerm  int
-	entries      []Entry
+	Entries      []Entry
 	LeaderCommit int
 }
 
@@ -182,6 +186,45 @@ type AppendEntriesReply struct {
 // example RequestVote RPC handler.
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (3A, 3B).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	defer DPrintf("{Node %v}'s state is {state %v, term %v}} after processing RequestVote,  RequestVoteArgs %v and RequestVoteReply %v , vote_for %v", rf.me, rf.state, rf.curr_term, args, reply, rf.vote_for)
+	if args.Term < rf.curr_term || (args.Term == rf.curr_term && rf.vote_for != -1 && rf.vote_for != args.CandidateId) {
+		// 1. term 小
+		// 2. 已经投过票了
+		reply.Term = rf.curr_term
+		reply.VoteGranted = false
+		return
+	}
+
+	if args.Term > rf.curr_term {
+		rf.ChangeState(Follower)
+		rf.curr_term = args.Term
+	}
+	rf.vote_for = args.CandidateId
+	reply.VoteGranted = true
+	reply.Term = args.Term
+	rf.counter = rf.GetElectionCount()
+
+}
+
+func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	defer DPrintf("{Node %v}'s state is {state %v, term %v}} after processing AppendEntries,  AppendEntriesArgs %v and AppendEntriesReply %v counter %v", rf.me, rf.state, rf.curr_term, args, reply, rf.counter)
+	if args.Term < rf.curr_term {
+		reply.Success = false
+		reply.Term = rf.curr_term
+		return
+	}
+	if args.Term > rf.curr_term {
+		rf.curr_term = args.Term
+		rf.vote_for = -1
+	}
+	rf.ChangeState(Follower)
+	reply.Term = rf.curr_term
+	reply.Success = true
+	rf.counter = rf.GetElectionCount()
 }
 
 // example code to send a RequestVote RPC to a server.
@@ -213,6 +256,10 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 // the struct itself.
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
+	return ok
+}
+func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
+	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
 	return ok
 }
 
@@ -258,15 +305,36 @@ func (rf *Raft) killed() bool {
 }
 
 func (rf *Raft) ticker() {
+	timer := time.NewTimer(30 * time.Millisecond)
 	for rf.killed() == false {
 
 		// Your code here (3A)
 		// Check if a leader election should be started.
+		<-timer.C
+		rf.mu.Lock()
+		rf.counter -= 1
+		DPrintf("{Node %v} ticker ! state %v term %v , counter %v", rf.me, rf.state, rf.curr_term, rf.counter)
+		switch rf.state {
+		case Follower:
+			fallthrough
+		case Candidate:
+			if rf.counter == 0 {
+				rf.curr_term += 1
+				rf.ChangeState(Candidate)
+				rf.counter = rf.GetElectionCount()
+				rf.StartElect()
+			}
+		case Leader:
+			if rf.counter == 0 {
+				rf.BroadCastHB()
+				rf.counter = rf.GetHBCounter()
+			}
+		}
+		rf.mu.Unlock()
 
+		timer.Reset(30 * time.Millisecond)
 		// pause for a random amount of time between 50 and 350
 		// milliseconds.
-		ms := 50 + (rand.Int63() % 300)
-		time.Sleep(time.Duration(ms) * time.Millisecond)
 	}
 }
 
@@ -284,22 +352,23 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf := &Raft{
 		peers:        peers,
 		persister:    persister,
+		state:        Follower,
 		me:           me,
 		curr_term:    0,
-		voteFor:      -1,
+		vote_for:     -1,
 		log:          []Entry{Entry{Term: -1, Cmd: "None"}},
 		commit_idx:   0,
 		last_applied: 0,
 		next_idx:     make([]int, len(peers)),
 		match_idx:    make([]int, len(peers)),
+		vote_recv:    0,
 	}
 	rf.peers = peers
 	rf.persister = persister
 	rf.me = me
 
 	// Your initialization code here (3A, 3B, 3C).
-	// NOTE:
-	// lab2a set timer
+	rf.counter = rf.GetElectionCount()
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
@@ -307,5 +376,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	// start ticker goroutine to start elections
 	go rf.ticker()
 
+	// NOTE:
+	// lab3a set timer
 	return rf
 }
