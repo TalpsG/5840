@@ -3,12 +3,13 @@ package raft
 import (
 	"log"
 	"math/rand"
+	"sort"
 	"sync"
 	"time"
 )
 
 // Debugging
-const Debug = false
+const Debug = true
 const ElectionTimeout = 15
 const HBTimeout = 5
 
@@ -50,13 +51,29 @@ func DPrintf(format string, a ...interface{}) {
 		log.Printf(format, a...)
 	}
 }
-func (rf *Raft) GetAppendArgs() *AppendEntriesArgs {
+func (rf *Raft) GetAppendArgs(i int) *AppendEntriesArgs {
 	args := &AppendEntriesArgs{
 		Term:     rf.curr_term,
 		LeaderId: rf.me,
 
 		// NOTE:
 		// lab3b need add something
+		LeaderCommit: rf.commit_idx,
+	}
+	if rf.follower_next_idx[i] == rf.next_log_idx {
+		// heartbeat
+		args.Entries = make([]Entry, 0)
+		args.PrevLogIdx = rf.GetLastLog().Index
+		args.PrevLogTerm = rf.GetLastLog().Term
+		DPrintf("{Node %v} term %v i %v PrevLogTerm %v PrevLogIdx %v", rf.me, rf.curr_term, i, args.PrevLogTerm, args.PrevLogIdx)
+	} else {
+		// log duplication
+		n := rf.next_log_idx - rf.follower_match_idx[i] - 1
+		args.Entries = make([]Entry, n)
+		copy(args.Entries, rf.log[rf.follower_match_idx[i]+1:])
+		args.PrevLogIdx = rf.follower_match_idx[i]
+		args.PrevLogTerm = rf.log[rf.follower_match_idx[i]].Term
+		DPrintf("{Node %v} term %v i %v PrevLogTerm %v PrevLogIdx %v length %v", rf.me, rf.curr_term, i, args.PrevLogTerm, args.PrevLogIdx, len(args.Entries))
 	}
 	return args
 }
@@ -116,30 +133,49 @@ func assert(t bool) {
 		panic("bool ")
 	}
 }
+
+func (rf *Raft) GetLastLog() Entry {
+	return rf.log[len(rf.log)-1]
+}
 func (rf *Raft) BroadCastHB() {
-	args := rf.GetAppendArgs()
 	for i := range rf.peers {
 		if i == rf.me {
 			continue
 		}
 		go func(i int) {
+			rf.mu.Lock()
+			args := rf.GetAppendArgs(i)
+			rf.mu.Unlock()
 			reply := &AppendEntriesReply{}
 			if rf.sendAppendEntries(i, args, reply) {
 				rf.mu.Lock()
 				defer rf.mu.Unlock()
 				if rf.curr_term == args.Term && rf.state == Leader {
-					if !reply.Success {
-						if reply.Term > rf.curr_term {
-							// bigger term from other
-							assert(!reply.Success)
-							rf.curr_term = reply.Term
-							rf.ChangeState(Follower)
-						} else {
-							// NOTE:
-							// log duplication in lab3b
-							assert(rf.curr_term == reply.Term)
-						}
-					}
+					assert(reply.Success)
+					// log duplication success
+					rf.follower_match_idx[i] += len(args.Entries)
+					rf.follower_next_idx[i] += len(args.Entries)
+					assert(rf.follower_match_idx[i]+1 == rf.follower_next_idx[i])
+					// get commit_idx
+					temp := make([]int, len(rf.follower_match_idx))
+					copy(temp, rf.follower_match_idx)
+					sort.Ints(temp)
+					DPrintf("{Node %v} term %v ,now_commit %v ,target %v", rf.me, rf.curr_term, rf.commit_idx, temp[rf.num_most-1])
+					rf.commit_idx = rf.follower_match_idx[rf.num_most-1]
+					//					if !reply.Success {
+					//						if reply.Term > rf.curr_term {
+					//							// bigger term from other
+					//							assert(!reply.Success)
+					//							rf.curr_term = reply.Term
+					//							rf.ChangeState(Follower)
+					//						} else {
+					//							// NOTE:
+					//							// log duplication in lab3b
+					//							// every hb copy 1 log
+					//							// if needed (rpc Successfully)
+					//							assert(rf.curr_term == reply.Term)
+					//						}
+					//					}
 				}
 			}
 		}(i)

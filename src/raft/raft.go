@@ -35,6 +35,13 @@ const (
 	Leader
 )
 
+func Min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 // as each Raft peer becomes aware that successive log entries are
 // committed, the peer should send an ApplyMsg to the service (or
 // tester) on the same server, via the applyCh passed to Make(). set
@@ -57,8 +64,9 @@ type ApplyMsg struct {
 }
 
 type Entry struct {
-	Cmd  interface{}
-	Term int
+	Cmd   interface{}
+	Term  int
+	Index int
 }
 
 // A Go object implementing a single Raft peer.
@@ -82,12 +90,20 @@ type Raft struct {
 	last_applied int
 
 	// volatile on leader
-	next_idx  []int
-	match_idx []int
+	follower_next_idx  []int
+	follower_match_idx []int
 
 	vote_recv int
 	// counter
 	counter int
+
+	// next log idx
+	next_log_idx int
+
+	is_heartbeating []bool
+
+	// half +1
+	num_most int
 }
 
 // return currentTerm and whether this server
@@ -201,11 +217,23 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		rf.ChangeState(Follower)
 		rf.curr_term = args.Term
 	}
-	rf.vote_for = args.CandidateId
-	reply.VoteGranted = true
 	reply.Term = args.Term
 	rf.counter = rf.GetElectionCount()
+	if rf.GetLastLog().Term > args.LastLogTerm {
+		reply.VoteGranted = false
+		rf.vote_for = -1
+		DPrintf("{Node %v} term %v ,last term %v ,args.last_term %v", rf.me, rf.curr_term, rf.GetLastLog().Term, args.LastLogTerm)
+		return
+	}
+	if rf.GetLastLog().Term == args.LastLogTerm && rf.GetLastLog().Index > args.LastLogIndex {
+		reply.VoteGranted = false
+		rf.vote_for = -1
+		DPrintf("{Node %v} term %v ,last idx  %v ,args.last_idx  %v", rf.me, rf.curr_term, rf.GetLastLog().Index, args.LastLogIndex)
+		return
 
+	}
+	rf.vote_for = args.CandidateId
+	reply.VoteGranted = true
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
@@ -223,6 +251,18 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	}
 	rf.ChangeState(Follower)
 	reply.Term = rf.curr_term
+	if len(args.Entries) != 0 {
+		// log duplication
+		DPrintf("{Node %v} term %v ,nowloglength  %v ,args.loglength %v,args.prevlogidx %v", rf.me, rf.curr_term, len(rf.log), len(args.Entries), args.PrevLogIdx)
+		// NOTE:
+		// this assert cannot use at this situation
+		// which peer may miss a log duplication
+		assert(rf.log[args.PrevLogIdx].Term == args.PrevLogTerm)
+		assert(rf.commit_idx <= args.LeaderCommit)
+		rf.log = append(rf.log, args.Entries...)
+		rf.commit_idx = Min(args.LeaderCommit, len(rf.log)-1)
+	}
+
 	reply.Success = true
 	rf.counter = rf.GetElectionCount()
 }
@@ -281,6 +321,21 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	isLeader := true
 
 	// Your code here (3B).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.state != Leader {
+		return -1, -1, false
+	}
+	entry := Entry{
+		Term:  rf.curr_term,
+		Cmd:   command,
+		Index: rf.next_log_idx,
+	}
+	rf.next_log_idx += 1
+	rf.log = append(rf.log, entry)
+	assert(len(rf.log) == (rf.next_log_idx))
+	// NOTE:
+	// appendentries background (by heartbeat)
 
 	return index, term, isLeader
 }
@@ -313,7 +368,6 @@ func (rf *Raft) ticker() {
 		<-timer.C
 		rf.mu.Lock()
 		rf.counter -= 1
-		DPrintf("{Node %v} ticker ! state %v term %v , counter %v", rf.me, rf.state, rf.curr_term, rf.counter)
 		switch rf.state {
 		case Follower:
 			fallthrough
@@ -350,22 +404,29 @@ func (rf *Raft) ticker() {
 func Make(peers []*labrpc.ClientEnd, me int,
 	persister *Persister, applyCh chan ApplyMsg) *Raft {
 	rf := &Raft{
-		peers:        peers,
-		persister:    persister,
-		state:        Follower,
-		me:           me,
-		curr_term:    0,
-		vote_for:     -1,
-		log:          []Entry{Entry{Term: -1, Cmd: "None"}},
-		commit_idx:   0,
-		last_applied: 0,
-		next_idx:     make([]int, len(peers)),
-		match_idx:    make([]int, len(peers)),
-		vote_recv:    0,
+		peers:              peers,
+		persister:          persister,
+		state:              Follower,
+		me:                 me,
+		curr_term:          0,
+		vote_for:           -1,
+		log:                []Entry{Entry{Term: -1, Cmd: "None"}},
+		commit_idx:         0,
+		last_applied:       0,
+		follower_next_idx:  make([]int, len(peers)),
+		follower_match_idx: make([]int, len(peers)),
+		vote_recv:          0,
+		next_log_idx:       1,
+		is_heartbeating:    make([]bool, len(peers)),
+		num_most:           len(peers)/2 + 1,
 	}
 	rf.peers = peers
 	rf.persister = persister
 	rf.me = me
+	for i := range rf.follower_next_idx {
+		rf.follower_next_idx[i] = 1
+		rf.follower_match_idx[i] = 0
+	}
 
 	// Your initialization code here (3A, 3B, 3C).
 	rf.counter = rf.GetElectionCount()
