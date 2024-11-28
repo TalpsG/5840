@@ -16,3 +16,7 @@
 11.24 
 log复制的时候出现下标错误
 
+
+## tips
+1. follower -> leader的时候需要初始化follower_next_idx 和 follower_match_idx
+

@@ -41,6 +41,12 @@ func Min(a, b int) int {
 	}
 	return b
 }
+func Max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
 
 // as each Raft peer becomes aware that successive log entries are
 // committed, the peer should send an ApplyMsg to the service (or
@@ -100,10 +106,12 @@ type Raft struct {
 	// next log idx
 	next_log_idx int
 
-	is_heartbeating []bool
-
 	// half +1
 	num_most int
+
+	// bgworker apply log to statemachine
+	appl_ch  chan ApplyMsg
+	cond_var sync.Cond
 }
 
 // return currentTerm and whether this server
@@ -212,23 +220,25 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		reply.VoteGranted = false
 		return
 	}
-
 	if args.Term > rf.curr_term {
 		rf.ChangeState(Follower)
 		rf.curr_term = args.Term
+		rf.vote_for = -1
 	}
+
 	reply.Term = args.Term
 	rf.counter = rf.GetElectionCount()
+	DPrintf("{Node %v} term %v ,last term %v ,args.last_term %v lastlogidx %v args.lastlogidx %v", rf.me, rf.curr_term, rf.GetLastLog().Term, args.LastLogTerm, rf.GetLastLog().Index, args.LastLogIndex)
 	if rf.GetLastLog().Term > args.LastLogTerm {
 		reply.VoteGranted = false
 		rf.vote_for = -1
-		DPrintf("{Node %v} term %v ,last term %v ,args.last_term %v", rf.me, rf.curr_term, rf.GetLastLog().Term, args.LastLogTerm)
+		DPrintf("{Node %v} term %v lastlogterm not newer", rf.me, rf.curr_term)
 		return
 	}
 	if rf.GetLastLog().Term == args.LastLogTerm && rf.GetLastLog().Index > args.LastLogIndex {
 		reply.VoteGranted = false
 		rf.vote_for = -1
-		DPrintf("{Node %v} term %v ,last idx  %v ,args.last_idx  %v", rf.me, rf.curr_term, rf.GetLastLog().Index, args.LastLogIndex)
+		DPrintf("{Node %v} term %v lastlog idx not bigger", rf.me, rf.curr_term)
 		return
 
 	}
@@ -237,9 +247,12 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 }
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	DPrintf("recv appendentries %v", args)
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	defer DPrintf("{Node %v}'s state is {state %v, term %v}} after processing AppendEntries,  AppendEntriesArgs %v and AppendEntriesReply %v counter %v", rf.me, rf.state, rf.curr_term, args, reply, rf.counter)
+	DPrintf("{Node %v}'s state is {state %v, term %v}} processing AppendEntries,  AppendEntriesArgs %v and AppendEntriesReply %v counter %v", rf.me, rf.state, rf.curr_term, args, reply, rf.counter)
+	// step 1:
+	// args term must be bigger than curr_term
 	if args.Term < rf.curr_term {
 		reply.Success = false
 		reply.Term = rf.curr_term
@@ -251,20 +264,47 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	}
 	rf.ChangeState(Follower)
 	reply.Term = rf.curr_term
-	if len(args.Entries) != 0 {
-		// log duplication
-		DPrintf("{Node %v} term %v ,nowloglength  %v ,args.loglength %v,args.prevlogidx %v", rf.me, rf.curr_term, len(rf.log), len(args.Entries), args.PrevLogIdx)
-		// NOTE:
-		// this assert cannot use at this situation
-		// which peer may miss a log duplication
+	// log duplication
+	DPrintf("{Node %v} term %v ,nowloglength  %v ,args.loglength %v,args.prevlogidx %v args.LeaderCommit %v rf.commit %v", rf.me, rf.curr_term, len(rf.log), len(args.Entries), args.PrevLogIdx, args.LeaderCommit, rf.commit_idx)
+
+	// step 2: does not contain prevlog
+	if len(rf.log)-1 < args.PrevLogIdx {
+		// when a follower not recv A log  in term n
+		// A log commit
+		// then recv hb in term n+1
+		// this follower should duplicate A log by heartbeat
+		reply.Success = false
+	} else if rf.log[args.PrevLogIdx].Term != args.PrevLogTerm {
+		reply.Success = false
+	} else {
+		DPrintf("args.prevlogidx %v arg.prevlogterm %v prevlogidx %v prevlogterm %v", args.PrevLogIdx, args.PrevLogTerm, len(rf.log), rf.log[args.PrevLogIdx].Term)
+		DPrintf("now prevlog %v,args.prevlog %v", rf.log[args.PrevLogIdx].Term, args.PrevLogTerm)
 		assert(rf.log[args.PrevLogIdx].Term == args.PrevLogTerm)
-		assert(rf.commit_idx <= args.LeaderCommit)
-		rf.log = append(rf.log, args.Entries...)
-		rf.commit_idx = Min(args.LeaderCommit, len(rf.log)-1)
+		// NOTE:
+		//  1 2 3 peer ,1 leader
+		//  abc log  commit on 1 2 peer ,not commit but copy to 3 peer
+		//  1 ,2  commit_idx is 1 ,3 is 0
+		//  1 crash ,then 3 could be leader
+		//  in this case 3 LeaderCommit < 2 commit_idx
+		// assert(rf.commit_idx <= args.LeaderCommit)
+
+		// NOTE:
+		// log duplication not just append
+		rf.LogDuplicate(args.PrevLogIdx, args.Entries)
+		DPrintf("{Node %v} term %v commit_idx %v last_applied %v args.LeaderCommit %v loglength %v", rf.me, rf.curr_term, rf.commit_idx, rf.last_applied, args.LeaderCommit, len(rf.log)-1)
+
+		if args.LeaderCommit > rf.commit_idx {
+			rf.commit_idx = Min(args.LeaderCommit, len(rf.log)-1)
+		}
+		if rf.commit_idx > rf.last_applied {
+			DPrintf("{Node %v} term %v commit_idx %v last_applied %v signal", rf.me, rf.curr_term, rf.commit_idx, rf.last_applied)
+			rf.cond_var.Signal()
+		}
+		reply.Success = true
 	}
 
-	reply.Success = true
 	rf.counter = rf.GetElectionCount()
+	DPrintf("reset electioncounter %v ", rf.counter)
 }
 
 // example code to send a RequestVote RPC to a server.
@@ -333,9 +373,14 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	}
 	rf.next_log_idx += 1
 	rf.log = append(rf.log, entry)
-	assert(len(rf.log) == (rf.next_log_idx))
+	DPrintf("{Node %v} term %v state %v loglength %v next_log_idx %v", rf.me, rf.curr_term, rf.state, len(rf.log), rf.next_log_idx)
+	assert(len(rf.log) >= (rf.next_log_idx))
 	// NOTE:
 	// appendentries background (by heartbeat)
+	index = entry.Index
+	term = entry.Term
+	DPrintf("msg : %v", entry)
+	DPrintf("---------")
 
 	return index, term, isLeader
 }
@@ -417,8 +462,8 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		follower_match_idx: make([]int, len(peers)),
 		vote_recv:          0,
 		next_log_idx:       1,
-		is_heartbeating:    make([]bool, len(peers)),
 		num_most:           len(peers)/2 + 1,
+		appl_ch:            applyCh,
 	}
 	rf.peers = peers
 	rf.persister = persister
@@ -427,6 +472,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		rf.follower_next_idx[i] = 1
 		rf.follower_match_idx[i] = 0
 	}
+	rf.cond_var = *sync.NewCond(&rf.mu)
 
 	// Your initialization code here (3A, 3B, 3C).
 	rf.counter = rf.GetElectionCount()
@@ -436,6 +482,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// start ticker goroutine to start elections
 	go rf.ticker()
+	go rf.ApplyRoutine()
 
 	// NOTE:
 	// lab3a set timer
