@@ -256,8 +256,10 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if rf.GetLastLog().Term > args.LastLogTerm {
 		reply.VoteGranted = false
 		rf.Vote_for = -1
+		// NOTE:
 		// if candidate log not newer than me
-		// me peer can startelect quickly by GetHBCounter(because it is smaller than GetElectionCount)
+		// me should be more possible to be leader
+		// so let me continue to be candidate
 		rf.counter = rf.GetHBCounter()
 		DPrintf("{Node %v} term %v lastlogterm not newer", rf.me, rf.Curr_term)
 		// NOTE save
@@ -267,6 +269,9 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	if rf.GetLastLog().Term == args.LastLogTerm && rf.GetLastLog().Index > args.LastLogIndex {
 		reply.VoteGranted = false
 		rf.Vote_for = -1
+		// NOTE:
+		// same reason as lastlogterm not newer
+		rf.counter = rf.GetHBCounter()
 		DPrintf("{Node %v} term %v lastlog idx not bigger", rf.me, rf.Curr_term)
 		// NOTE save
 		rf.persist()
