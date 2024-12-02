@@ -9,7 +9,7 @@ import (
 )
 
 // Debugging
-const Debug = true
+const Debug = false
 const ElectionTimeout = 15
 const HBTimeout = 5
 
