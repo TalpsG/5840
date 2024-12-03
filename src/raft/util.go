@@ -16,12 +16,15 @@ const HBTimeout = 5
 var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 var rnd_mtx sync.Mutex
 
-func (rf *Raft) GetElectionCount() int {
+// big for election
+func (rf *Raft) GetBigCounter() int {
 	rnd_mtx.Lock()
 	defer rnd_mtx.Unlock()
 	return rnd.Intn(ElectionTimeout) + ElectionTimeout
 }
-func (rf *Raft) GetHBCounter() int {
+
+// small for heartbeat
+func (rf *Raft) GetSmallCounter() int {
 	rnd_mtx.Lock()
 	defer rnd_mtx.Unlock()
 	return rnd.Intn(HBTimeout) + HBTimeout
@@ -36,16 +39,16 @@ func (rf *Raft) ChangeState(s State) {
 		// follower should keep its vote_for to avoid voting twice
 		// rf.vote_for = -1
 		rf.vote_recv = -1
-		rf.counter = rf.GetElectionCount()
+		rf.counter = rf.GetBigCounter()
 	case Candidate:
 		rf.Vote_for = rf.me
 		rf.vote_recv = 1
-		rf.counter = rf.GetElectionCount()
+		rf.counter = rf.GetBigCounter()
 	case Leader:
 		DPrintf("{Node %v} become leader", rf.me)
 		rf.Vote_for = rf.me
 		rf.vote_recv = -1
-		rf.counter = rf.GetHBCounter()
+		rf.counter = rf.GetSmallCounter()
 		rf.next_log_idx = len(rf.Log)
 		// NOTE:
 		// initialize follower_match_idx and follower_next_idx
@@ -138,7 +141,7 @@ func (rf *Raft) StartElect() {
 						DPrintf("{Node %v} recv vote from %v , now vote_recv %v ,now term %v ,arg_term %v", rf.me, i, rf.vote_recv, rf.Curr_term, args.Term)
 						if rf.vote_recv >= (len(rf.peers)+1)/2 {
 							rf.ChangeState(Leader)
-							rf.counter = rf.GetHBCounter()
+							rf.counter = rf.GetSmallCounter()
 							rf.BroadCastHB()
 							rf.persist()
 						}

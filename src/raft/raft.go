@@ -251,16 +251,16 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	}
 
 	reply.Term = args.Term
-	rf.counter = rf.GetElectionCount()
+	rf.counter = rf.GetBigCounter()
 	DPrintf("{Node %v} term %v ,last term %v ,args.last_term %v lastlogidx %v args.lastlogidx %v", rf.me, rf.Curr_term, rf.GetLastLog().Term, args.LastLogTerm, rf.GetLastLog().Index, args.LastLogIndex)
 	if rf.GetLastLog().Term > args.LastLogTerm {
 		reply.VoteGranted = false
 		rf.Vote_for = -1
 		// NOTE:
-		// if candidate log not newer than me
+		// if candidate last log is not newer than me
 		// me should be more possible to be leader
-		// so let me continue to be candidate
-		rf.counter = rf.GetHBCounter()
+		// so let me to start elect quickly (by get a small counter)
+		rf.counter = rf.GetSmallCounter()
 		DPrintf("{Node %v} term %v lastlogterm not newer", rf.me, rf.Curr_term)
 		// NOTE save
 		rf.persist()
@@ -271,7 +271,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		rf.Vote_for = -1
 		// NOTE:
 		// same reason as lastlogterm not newer
-		rf.counter = rf.GetHBCounter()
+		rf.counter = rf.GetSmallCounter()
 		DPrintf("{Node %v} term %v lastlog idx not bigger", rf.me, rf.Curr_term)
 		// NOTE save
 		rf.persist()
@@ -344,7 +344,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	}
 	// NOTE save
 	rf.persist()
-	rf.counter = rf.GetElectionCount()
+	rf.counter = rf.GetBigCounter()
 }
 
 // example code to send a RequestVote RPC to a server.
@@ -464,13 +464,13 @@ func (rf *Raft) ticker() {
 				rf.Curr_term += 1
 				rf.ChangeState(Candidate)
 				rf.persist()
-				rf.counter = rf.GetElectionCount()
+				rf.counter = rf.GetBigCounter()
 				rf.StartElect()
 			}
 		case Leader:
 			if rf.counter == 0 {
 				rf.BroadCastHB()
-				rf.counter = rf.GetHBCounter()
+				rf.counter = rf.GetSmallCounter()
 			}
 		}
 		rf.mu.Unlock()
@@ -519,7 +519,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.cond_var = *sync.NewCond(&rf.mu)
 
 	// Your initialization code here (3A, 3B, 3C).
-	rf.counter = rf.GetElectionCount()
+	rf.counter = rf.GetBigCounter()
 
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
