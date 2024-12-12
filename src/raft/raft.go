@@ -114,6 +114,14 @@ type Raft struct {
 	// bgworker apply log to statemachine
 	appl_ch  chan ApplyMsg
 	cond_var sync.Cond
+
+	// snapshot log idx
+	snapshot_idx      int
+	prev_snapshot_idx int
+	snapshot_term     int
+	SnapShotData      []byte
+	// is snapshot from Snapshot API or InstallSnapshot
+	fromTop bool
 }
 
 // return currentTerm and whether this server
@@ -150,10 +158,13 @@ func (rf *Raft) persist() {
 	// NOTE encoding and decoding must be a same sequence
 	e.Encode(rf.Curr_term)
 	e.Encode(rf.Vote_for)
+	// lab3d
+	e.Encode(rf.snapshot_idx)
+	e.Encode(rf.prev_snapshot_idx)
 	e.Encode(rf.Log)
 	raftstate := w.Bytes()
 	DPrintf("Persist {Node %v} curr_term %v vote_for %v loglength %v", rf.me, rf.Curr_term, rf.Vote_for, rf.Log)
-	rf.persister.Save(raftstate, nil)
+	rf.persister.Save(raftstate, rf.SnapShotData)
 }
 
 // restore previously persisted state.
@@ -167,14 +178,20 @@ func (rf *Raft) readPersist(data []byte) {
 	d := labgob.NewDecoder(r)
 	var term int
 	var vote int
+	var snapshot_idx int
+	var prev_snapshot_idx int
 	var log []Entry
 	if d.Decode(&term) != nil ||
 		d.Decode(&vote) != nil ||
+		d.Decode(&snapshot_idx) != nil ||
+		d.Decode(&prev_snapshot_idx) != nil ||
 		d.Decode(&log) != nil {
 		panic("decode type error ")
 	} else {
 		rf.Curr_term = term
 		rf.Vote_for = vote
+		rf.snapshot_idx = snapshot_idx
+		rf.prev_snapshot_idx = prev_snapshot_idx
 		rf.Log = log
 	}
 	assert(rf.state == Follower)
@@ -183,6 +200,13 @@ func (rf *Raft) readPersist(data []byte) {
 		rf.follower_match_idx[i] = 0
 		rf.follower_next_idx[i] = 1
 	}
+	// lab3d
+	if rf.snapshot_idx == rf.prev_snapshot_idx {
+		rf.last_applied = rf.snapshot_idx
+	} else {
+		rf.last_applied = rf.prev_snapshot_idx
+	}
+	rf.commit_idx = rf.last_applied
 	DPrintf("readPersist {Node %v} curr_term %v vote_for %v loglength %v", rf.me, rf.Curr_term, rf.Vote_for, rf.Log)
 }
 
@@ -190,9 +214,40 @@ func (rf *Raft) readPersist(data []byte) {
 // all info up to and including index. this means the
 // service no longer needs the log through (and including)
 // that index. Raft should now trim its log as much as possible.
+
+// NOTE:
+// snapshot must be called within lock
 func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	// Your code here (3D).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	assert(rf.Log[0].Index == rf.snapshot_idx)
+	assert(index > rf.Log[0].Index)
+	assert(index > rf.snapshot_idx)
+	assert(index <= rf.commit_idx)
+	rf.snapshot_term = rf.Log[rf.GetRealIdx(index)].Term
+	rf.SnapShotData = snapshot
+	// NOTE:
+	// should not cut log
+	rf.Log = rf.Log[index-rf.snapshot_idx:]
+	rf.snapshot_idx = index
+	rf.prev_snapshot_idx = rf.snapshot_idx
+	rf.fromTop = true
+	DPrintf("snapshot {Node %v} term %v state %v snapshot_idx %v loglen %v log %v", rf.me, rf.Curr_term, rf.state, rf.snapshot_idx, len(rf.Log), rf.Log)
 
+	rf.persist()
+}
+
+type InstallSnapshotArgs struct {
+	Term            int
+	LeaderId        int
+	LastIncludeIdx  int
+	LastIncludeTerm int
+	Snapshot        []byte
+}
+type InstallSnapshotReply struct {
+	Success bool
+	Term    int
 }
 
 // example RequestVote RPC arguments structure.
@@ -220,6 +275,10 @@ type AppendEntriesArgs struct {
 	PrevLogTerm  int
 	Entries      []Entry
 	LeaderCommit int
+}
+type HBArgs struct {
+	append_args   *AppendEntriesArgs
+	snapshot_args *InstallSnapshotArgs
 }
 
 type AppendEntriesReply struct {
@@ -255,7 +314,10 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	DPrintf("{Node %v} term %v ,last term %v ,args.last_term %v lastlogidx %v args.lastlogidx %v", rf.me, rf.Curr_term, rf.GetLastLog().Term, args.LastLogTerm, rf.GetLastLog().Index, args.LastLogIndex)
 	if rf.GetLastLog().Term > args.LastLogTerm {
 		reply.VoteGranted = false
-		rf.Vote_for = -1
+		if rf.Vote_for != -1 {
+			rf.Vote_for = -1
+			rf.persist()
+		}
 		// NOTE:
 		// if candidate last log is not newer than me
 		// me should be more possible to be leader
@@ -263,18 +325,19 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		rf.counter = rf.GetSmallCounter()
 		DPrintf("{Node %v} term %v lastlogterm not newer", rf.me, rf.Curr_term)
 		// NOTE save
-		rf.persist()
 		return
 	}
 	if rf.GetLastLog().Term == args.LastLogTerm && rf.GetLastLog().Index > args.LastLogIndex {
 		reply.VoteGranted = false
-		rf.Vote_for = -1
+		if rf.Vote_for != -1 {
+			rf.Vote_for = -1
+			rf.persist()
+		}
 		// NOTE:
 		// same reason as lastlogterm not newer
 		rf.counter = rf.GetSmallCounter()
 		DPrintf("{Node %v} term %v lastlog idx not bigger", rf.me, rf.Curr_term)
 		// NOTE save
-		rf.persist()
 		return
 
 	}
@@ -308,25 +371,26 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	DPrintf("{Node %v} term %v ,nowloglength  %v ,args.loglength %v,args.prevlogidx %v args.LeaderCommit %v rf.commit %v", rf.me, rf.Curr_term, len(rf.Log), len(args.Entries), args.PrevLogIdx, args.LeaderCommit, rf.commit_idx)
 
 	// step 2: does not contain prevlog
-	if len(rf.Log)-1 < args.PrevLogIdx {
+	if rf.GetRealLogLen()-1 < args.PrevLogIdx {
 		// when a follower not recv A log  in term n
 		// A log commit
 		// then recv hb in term n+1
 		// this follower should duplicate A log by heartbeat
 		reply.Success = false
-	} else if rf.Log[args.PrevLogIdx].Term != args.PrevLogTerm {
+	} else if rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term != args.PrevLogTerm {
 		reply.Success = false
 	} else {
-		DPrintf("args.prevlogidx %v arg.prevlogterm %v prevlogidx %v prevlogterm %v", args.PrevLogIdx, args.PrevLogTerm, len(rf.Log), rf.Log[args.PrevLogIdx].Term)
-		DPrintf("now prevlog %v,args.prevlog %v", rf.Log[args.PrevLogIdx].Term, args.PrevLogTerm)
-		assert(rf.Log[args.PrevLogIdx].Term == args.PrevLogTerm)
+		DPrintf("{Node %v} term %v state %v args.prevlogidx %v GetRealIdx(args.prevlogidx) %v log[rf.GetRealIdx(args.prevlogidx)].index %v", rf.me, rf.Curr_term, rf.state, args.PrevLogIdx, rf.GetRealIdx(args.PrevLogIdx), rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
+		assert(args.PrevLogIdx == rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
+		DPrintf("args.prevlogidx %v arg.prevlogterm %v prevlogidx %v prevlogterm %v", args.PrevLogIdx, args.PrevLogTerm, len(rf.Log)-1, rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term)
+		DPrintf("now prevlogterm %v,args.prevlogterm %v", rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term, args.PrevLogTerm)
+		assert(rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term == args.PrevLogTerm)
 		// NOTE:
 		//  1 2 3 peer ,1 leader
 		//  abc log  commit on 1 2 peer ,not commit but copy to 3 peer
 		//  1 ,2  commit_idx is 1 ,3 is 0
 		//  1 crash ,then 3 could be leader
 		//  in this case 3 LeaderCommit < 2 commit_idx
-		// assert(rf.commit_idx <= args.LeaderCommit)
 
 		// NOTE:
 		// log duplication not just append
@@ -334,7 +398,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		DPrintf("{Node %v} term %v commit_idx %v last_applied %v args.LeaderCommit %v loglength %v", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied, args.LeaderCommit, len(rf.Log)-1)
 
 		if args.LeaderCommit > rf.commit_idx {
-			rf.commit_idx = Min(args.LeaderCommit, len(rf.Log)-1)
+			rf.commit_idx = Min(args.LeaderCommit, rf.GetRealLogLen()-1)
 		}
 		if rf.commit_idx > rf.last_applied {
 			DPrintf("{Node %v} term %v commit_idx %v last_applied %v signal", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied)
@@ -374,6 +438,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 // capitalized all field names in structs passed over RPC, and
 // that the caller passes the address of the reply struct with &, not
 // the struct itself.
+func (rf *Raft) sendInstallSnapshot(server int, args *InstallSnapshotArgs, reply *InstallSnapshotReply) bool {
+	ok := rf.peers[server].Call("Raft.InstallSnapshot", args, reply)
+	return ok
+}
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
 	return ok
@@ -414,7 +482,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.next_log_idx += 1
 	rf.Log = append(rf.Log, entry)
 	DPrintf("{Node %v} term %v state %v loglength %v next_log_idx %v", rf.me, rf.Curr_term, rf.state, len(rf.Log), rf.next_log_idx)
-	assert(len(rf.Log) >= (rf.next_log_idx))
+	assert(rf.GetRealLogLen() == rf.next_log_idx)
 	// NOTE:
 	// appendentries background (by heartbeat)
 	index = entry.Index
@@ -473,6 +541,7 @@ func (rf *Raft) ticker() {
 				rf.counter = rf.GetSmallCounter()
 			}
 		}
+		// DPrintf("{Node %v} term %v state %v counter %v", rf.me, rf.Curr_term, rf.state, rf.counter)
 		rf.mu.Unlock()
 
 		timer.Reset(30 * time.Millisecond)
@@ -499,7 +568,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		me:                 me,
 		Curr_term:          0,
 		Vote_for:           -1,
-		Log:                []Entry{Entry{Term: -1, Cmd: "None"}},
+		Log:                []Entry{Entry{Term: 0, Cmd: "None", Index: 0}},
 		commit_idx:         0,
 		last_applied:       0,
 		follower_next_idx:  make([]int, len(peers)),
@@ -508,6 +577,11 @@ func Make(peers []*labrpc.ClientEnd, me int,
 		next_log_idx:       1,
 		num_most:           len(peers)/2 + 1,
 		appl_ch:            applyCh,
+		snapshot_idx:       0,
+		prev_snapshot_idx:  0,
+		snapshot_term:      0,
+		SnapShotData:       nil,
+		fromTop:            false,
 	}
 	rf.peers = peers
 	rf.persister = persister

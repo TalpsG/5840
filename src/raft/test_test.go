@@ -1146,96 +1146,161 @@ func TestUnreliableChurn3C(t *testing.T) {
 	internalChurn(t, true)
 }
 
-//const MAXLOGSIZE = 2000
-//
-//func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash bool) {
-//	iters := 30
-//	servers := 3
-//	cfg := make_config(t, servers, !reliable, true)
-//	defer cfg.cleanup()
-//
-//	cfg.begin(name)
-//
-//	cfg.one(rand.Int(), servers, true)
-//	leader1 := cfg.checkOneLeader()
-//
-//	for i := 0; i < iters; i++ {
-//		victim := (leader1 + 1) % servers
-//		sender := leader1
-//		if i%3 == 1 {
-//			sender = (leader1 + 1) % servers
-//			victim = leader1
-//		}
-//
-//		if disconnect {
-//			cfg.disconnect(victim)
-//			cfg.one(rand.Int(), servers-1, true)
-//		}
-//		if crash {
-//			cfg.crash1(victim)
-//			cfg.one(rand.Int(), servers-1, true)
-//		}
-//
-//		// perhaps send enough to get a snapshot
-//		nn := (SnapShotInterval / 2) + (rand.Int() % SnapShotInterval)
-//		for i := 0; i < nn; i++ {
-//			cfg.rafts[sender].Start(rand.Int())
-//		}
-//
-//		// let applier threads catch up with the Start()'s
-//		if disconnect == false && crash == false {
-//			// make sure all followers have caught up, so that
-//			// an InstallSnapshot RPC isn't required for
-//			// TestSnapshotBasic3D().
-//			cfg.one(rand.Int(), servers, true)
-//		} else {
-//			cfg.one(rand.Int(), servers-1, true)
-//		}
-//
-//		if cfg.LogSize() >= MAXLOGSIZE {
-//			cfg.t.Fatalf("Log size too large")
-//		}
-//		if disconnect {
-//			// reconnect a follower, who maybe behind and
-//			// needs to rceive a snapshot to catch up.
-//			cfg.connect(victim)
-//			cfg.one(rand.Int(), servers, true)
-//			leader1 = cfg.checkOneLeader()
-//		}
-//		if crash {
-//			cfg.start1(victim, cfg.applierSnap)
-//			cfg.connect(victim)
-//			cfg.one(rand.Int(), servers, true)
-//			leader1 = cfg.checkOneLeader()
-//		}
-//	}
-//	cfg.end()
-//}
-//
-//func TestSnapshotBasic3D(t *testing.T) {
-//	snapcommon(t, "Test (3D): snapshots basic", false, true, false)
-//}
-//
-//func TestSnapshotInstall3D(t *testing.T) {
-//	snapcommon(t, "Test (3D): install snapshots (disconnect)", true, true, false)
-//}
-//
-//func TestSnapshotInstallUnreliable3D(t *testing.T) {
-//	snapcommon(t, "Test (3D): install snapshots (disconnect+unreliable)",
-//		true, false, false)
-//}
-//
-//func TestSnapshotInstallCrash3D(t *testing.T) {
-//	snapcommon(t, "Test (3D): install snapshots (crash)", false, true, true)
-//}
-//
-//func TestSnapshotInstallUnCrash3D(t *testing.T) {
-//	snapcommon(t, "Test (3D): install snapshots (unreliable+crash)", false, false, true)
-//}
-//
-//// do the servers persist the snapshots, and
-//// restart using snapshot along with the
-//// tail of the log?
+const MAXLOGSIZE = 2000
+
+func testTalpsBasic3D(t *testing.T) {
+
+	servers := 3
+	cfg := make_config(t, servers, false, true)
+	defer cfg.cleanup()
+
+	cfg.begin("talps")
+	idx := 1
+	x := cfg.one(rand.Int(), servers, true)
+	assert(x == idx)
+	idx++
+	leader1 := cfg.checkOneLeader()
+	fmt.Println("debug leader1 ", leader1)
+
+	for i := 0; i < 30; i++ {
+		leader1 := cfg.checkOneLeader()
+		fmt.Println("debug leader1 ", leader1)
+		sender := leader1
+		if i%3 == 1 {
+			sender = (leader1 + 1) % servers
+		}
+		for j := 0; j < 6; j++ {
+			x, _, ok := cfg.rafts[sender].Start(rand.Int())
+			if ok {
+				fmt.Println(x, idx)
+				idx += 1
+			}
+		}
+		x := cfg.one(rand.Int(), servers, true)
+		fmt.Println(x, idx)
+		assert(x == idx)
+		idx++
+	}
+	fmt.Println("talps test pass")
+}
+
+func snapcommon(t *testing.T, name string, disconnect bool, reliable bool, crash bool) {
+	iters := 30
+	servers := 3
+	cfg := make_config(t, servers, !reliable, true)
+	defer cfg.cleanup()
+
+	cfg.begin(name)
+	idx := 1
+
+	cfg.one(rand.Int(), servers, true)
+	fmt.Println("log idx should ", idx)
+	idx += 1
+	leader1 := cfg.checkOneLeader()
+	fmt.Println("debug leader1 ", leader1)
+
+	for i := 0; i < iters; i++ {
+		victim := (leader1 + 1) % servers
+		sender := leader1
+		if i%3 == 1 {
+			sender = (leader1 + 1) % servers
+			victim = leader1
+		}
+		fmt.Println("debug i", i, "victim", victim, "sender", sender)
+
+		if disconnect {
+			fmt.Println("disconnect victim", victim)
+			cfg.disconnect(victim)
+			cfg.one(rand.Int(), servers-1, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+		}
+		if crash {
+			fmt.Println("crash1 victim", victim)
+			cfg.crash1(victim)
+			cfg.one(rand.Int(), servers-1, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+		}
+
+		// perhaps send enough to get a snapshot
+		nn := (SnapShotInterval / 2) + (rand.Int() % SnapShotInterval)
+		fmt.Println("nn--------")
+		for i := 0; i < nn; i++ {
+			fmt.Println("sender ", sender, "start a log")
+			x, term, ok := cfg.rafts[sender].Start(rand.Int())
+			if ok {
+				fmt.Println("term ", term, "log idx should ", idx, "get", x, "i", i)
+				idx += 1
+			}
+		}
+
+		// let applier threads catch up with the Start()'s
+		if disconnect == false && crash == false {
+			// make sure all followers have caught up, so that
+			// an InstallSnapshot RPC isn't required for
+			// TestSnapshotBasic3D().
+			cfg.one(rand.Int(), servers, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+		} else {
+			cfg.one(rand.Int(), servers-1, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+		}
+
+		if cfg.LogSize() >= MAXLOGSIZE {
+			cfg.t.Fatalf("Log size too large")
+		}
+		if disconnect {
+			// reconnect a follower, who maybe behind and
+			// needs to rceive a snapshot to catch up.
+			fmt.Println("reconnect victim", victim)
+			cfg.connect(victim)
+			cfg.one(rand.Int(), servers, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+			leader1 = cfg.checkOneLeader()
+			fmt.Println("leader now ", leader1)
+		}
+		if crash {
+			fmt.Println("restart1 victim", victim)
+			cfg.start1(victim, cfg.applierSnap)
+			cfg.connect(victim)
+			cfg.one(rand.Int(), servers, true)
+			fmt.Println("log idx should ", idx, "i", i)
+			idx += 1
+			leader1 = cfg.checkOneLeader()
+			fmt.Println("leader now ", leader1)
+		}
+	}
+	cfg.end()
+}
+
+func testSnapshotBasic3D(t *testing.T) {
+	snapcommon(t, "Test (3D): snapshots basic", false, true, false)
+}
+
+func testSnapshotInstall3D(t *testing.T) {
+	snapcommon(t, "Test (3D): install snapshots (disconnect)", true, true, false)
+}
+
+func testSnapshotInstallUnreliable3D(t *testing.T) {
+	snapcommon(t, "Test (3D): install snapshots (disconnect+unreliable)",
+		true, false, false)
+}
+
+func TestSnapshotInstallCrash3D(t *testing.T) {
+	snapcommon(t, "Test (3D): install snapshots (crash)", false, true, true)
+}
+
+func TestSnapshotInstallUnCrash3D(t *testing.T) {
+	snapcommon(t, "Test (3D): install snapshots (unreliable+crash)", false, false, true)
+}
+
+// do the servers persist the snapshots, and
+// restart using snapshot along with the
+// tail of the log?
 //func TestSnapshotAllCrash3D(t *testing.T) {
 //	servers := 3
 //	iters := 5

@@ -9,9 +9,9 @@ import (
 )
 
 // Debugging
-const Debug = false
-const ElectionTimeout = 15
-const HBTimeout = 5
+const Debug = true
+const ElectionTimeout = 10
+const HBTimeout = 3
 
 var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 var rnd_mtx sync.Mutex
@@ -49,7 +49,7 @@ func (rf *Raft) ChangeState(s State) {
 		rf.Vote_for = rf.me
 		rf.vote_recv = -1
 		rf.counter = rf.GetSmallCounter()
-		rf.next_log_idx = len(rf.Log)
+		rf.next_log_idx = rf.GetLastLog().Index + 1
 		// NOTE:
 		// initialize follower_match_idx and follower_next_idx
 		for i := range rf.follower_next_idx {
@@ -66,7 +66,11 @@ func DPrintf(format string, a ...interface{}) {
 		log.Printf(format, a...)
 	}
 }
-func (rf *Raft) GetAppendArgs(i int) *AppendEntriesArgs {
+func (rf *Raft) GetAppendArgs(i int) HBArgs {
+	ret := HBArgs{
+		append_args:   nil,
+		snapshot_args: nil,
+	}
 	args := &AppendEntriesArgs{
 		Term:     rf.Curr_term,
 		LeaderId: rf.me,
@@ -80,7 +84,8 @@ func (rf *Raft) GetAppendArgs(i int) *AppendEntriesArgs {
 		args.Entries = make([]Entry, 0)
 		args.PrevLogIdx = rf.GetLastLog().Index
 		args.PrevLogTerm = rf.GetLastLog().Term
-		DPrintf("{Node %v} term %v state %v i %v PrevLogTerm %v PrevLogIdx %v", rf.me, rf.Curr_term, rf.state, i, args.PrevLogTerm, args.PrevLogIdx)
+		DPrintf("{Node %v} term %v state %v i %v PrevLogTerm %v PrevLogIdx %v lastlog %v", rf.me, rf.Curr_term, rf.state, i, args.PrevLogTerm, args.PrevLogIdx, rf.GetLastLog())
+		ret.append_args = args
 	} else if rf.GetLastLog().Term != rf.Curr_term {
 		// NOTE:figure 8
 		// leader only commit log whose term == Curr_term
@@ -89,17 +94,38 @@ func (rf *Raft) GetAppendArgs(i int) *AppendEntriesArgs {
 		args.PrevLogIdx = rf.GetLastLog().Index
 		args.PrevLogTerm = rf.GetLastLog().Term
 		DPrintf("{Node %v} term %v state %v i %v LastLogTerm %v Curr_term %v", rf.me, rf.Curr_term, rf.state, i, rf.GetLastLog().Term, rf.Curr_term)
+		ret.append_args = args
 	} else {
 		// log duplication
-		n := rf.next_log_idx - rf.follower_match_idx[i] - 1
-		DPrintf("{Node %v} term %v state %v i %v rf.next_log_idx %v follower_match_idx[i] %v", rf.me, rf.Curr_term, rf.state, i, rf.next_log_idx, rf.follower_match_idx[i])
-		args.Entries = make([]Entry, n)
-		copy(args.Entries, rf.Log[rf.follower_match_idx[i]+1:])
-		args.PrevLogIdx = rf.follower_match_idx[i]
-		args.PrevLogTerm = rf.Log[rf.follower_match_idx[i]].Term
-		DPrintf("{Node %v} term %v state %v i %v PrevLogTerm %v PrevLogIdx %v length %v", rf.me, rf.Curr_term, rf.state, i, args.PrevLogTerm, args.PrevLogIdx, len(args.Entries))
+		if rf.snapshot_idx <= rf.follower_match_idx[i] {
+			n := rf.next_log_idx - rf.follower_match_idx[i] - 1
+			DPrintf("{Node %v} term %v state %v i %v rf.next_log_idx %v follower_match_idx[i] %v", rf.me, rf.Curr_term, rf.state, i, rf.next_log_idx, rf.follower_match_idx[i])
+			args.Entries = make([]Entry, n)
+			// there should subtract snapshot_idx
+			copy(args.Entries, rf.Log[rf.GetRealIdx(rf.follower_match_idx[i])+1:])
+			args.PrevLogIdx = rf.follower_match_idx[i]
+			args.PrevLogTerm = rf.Log[rf.GetRealIdx(rf.follower_match_idx[i])].Term
+			DPrintf("{Node %v} term %v state %v i %v PrevLogTerm %v PrevLogIdx %v length %v", rf.me, rf.Curr_term, rf.state, i, args.PrevLogTerm, args.PrevLogIdx, len(args.Entries))
+			ret.append_args = args
+			ret.snapshot_args = nil
+		} else {
+			// no log to send to peer i
+			// need send sanpshot
+			DPrintf("{Node %v} term %v state %v i %v snapshot_idx %v prev_snapshot_idx %v length %v", rf.me, rf.Curr_term, rf.state, i, rf.snapshot_idx, rf.prev_snapshot_idx, len(args.Entries))
+			assert(rf.snapshot_term == rf.Log[rf.snapshot_idx-rf.prev_snapshot_idx].Term)
+			snapshot_args := InstallSnapshotArgs{
+				Term:            rf.Curr_term,
+				LeaderId:        rf.me,
+				LastIncludeIdx:  rf.snapshot_idx,
+				LastIncludeTerm: rf.snapshot_term,
+				Snapshot:        rf.SnapShotData,
+			}
+			ret.append_args = nil
+			ret.snapshot_args = &snapshot_args
+		}
 	}
-	return args
+	assert((ret.append_args == nil && ret.snapshot_args != nil) || (ret.append_args != nil && ret.snapshot_args == nil))
+	return ret
 }
 
 func (rf *Raft) GetVoteArgs() *RequestVoteArgs {
@@ -110,8 +136,8 @@ func (rf *Raft) GetVoteArgs() *RequestVoteArgs {
 		// lab3b:
 		// lastlog
 		// NOT LASTCOMMITLOG
-		LastLogIndex: len(rf.Log) - 1,
-		LastLogTerm:  rf.Log[len(rf.Log)-1].Term,
+		LastLogIndex: rf.GetLastLog().Index,
+		LastLogTerm:  rf.GetLastLog().Term,
 	}
 	return args
 }
@@ -143,7 +169,7 @@ func (rf *Raft) StartElect() {
 							rf.ChangeState(Leader)
 							rf.counter = rf.GetSmallCounter()
 							rf.BroadCastHB()
-							rf.persist()
+							// rf.persist()
 						}
 					}
 				}
@@ -164,123 +190,259 @@ func assert(t bool) {
 func (rf *Raft) GetLastLog() Entry {
 	return rf.Log[len(rf.Log)-1]
 }
+
+func (rf *Raft) GetRealLogLen() int {
+	DPrintf("{Node %v} GetLastLog().index + 1 %v len(log)+prev_snapshot_idx %v", rf.me, rf.GetLastLog().Index+1, len(rf.Log)+rf.prev_snapshot_idx)
+	assert(rf.GetLastLog().Index+1 == len(rf.Log)+rf.prev_snapshot_idx)
+	return rf.GetLastLog().Index + 1
+}
+
 func (rf *Raft) BroadCastHB() {
-	args := make([]*AppendEntriesArgs, len(rf.peers))
 	for i := range rf.peers {
 		if i == rf.me {
 			continue
 		}
-		args[i] = rf.GetAppendArgs(i)
-		go func(i int) {
+		arg := rf.GetAppendArgs(i)
+		go func(i int, arg HBArgs) {
 			reply := &AppendEntriesReply{}
-			if rf.sendAppendEntries(i, args[i], reply) {
-				rf.mu.Lock()
-				defer rf.mu.Unlock()
-				DPrintf("{Node %v} processing hbreply %v term %v state %v reply %v len(args) %v", rf.me, i, rf.Curr_term, rf.state, *reply, len(args[i].Entries))
-				if rf.Curr_term == args[i].Term {
-					if args[i].PrevLogIdx == 0 && reply.Success {
-						DPrintf("args prevlogidx %v prevlogterm %v", args[i].PrevLogIdx, args[i].PrevLogTerm)
-						assert(args[i].PrevLogTerm == -1)
+			if arg.append_args != nil {
+				if rf.sendAppendEntries(i, arg.append_args, reply) {
+					rf.mu.Lock()
+					defer rf.mu.Unlock()
+					DPrintf("{Node %v} processing hbreply %v term %v state %v reply %v len(args) %v", rf.me, i, rf.Curr_term, rf.state, *reply, len(arg.append_args.Entries))
+					if rf.Curr_term == arg.append_args.Term {
 						assert(rf.state == Leader)
-					}
-					if rf.state == Leader && reply.Success {
-						// log duplication success
-						if len(args[i].Entries) == 0 {
-							return
-						}
-						// NOTE:
-						// use prevlogidx + len not +=
-						// because there is a case:
-						// when a rpc send and block on lock()
-						// fortunately next heartbeat args are got
-						// then if rpc success , follower_match_idx will += twice.
-						rf.follower_match_idx[i] = args[i].PrevLogIdx + len(args[i].Entries)
-						rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
-						// update commit_idx when commit_idx < follower_match_idx
-						if rf.commit_idx < rf.follower_match_idx[i] {
-							rf.follower_match_idx[rf.me] = len(rf.Log) - 1
-							temp := make([]int, len(rf.follower_match_idx))
-							copy(temp, rf.follower_match_idx)
-							sort.Ints(temp)
-							if temp[rf.num_most-1] > rf.commit_idx {
-								for _, item := range rf.Log[rf.commit_idx+1 : temp[rf.num_most-1]+1] {
-									DPrintf("commit %v", item)
-								}
-								rf.commit_idx = temp[rf.num_most-1]
-								rf.cond_var.Signal()
-								DPrintf("{Node %v} term %v commit", rf.me, rf.Curr_term)
-							}
-							DPrintf("{Node %v} term %v ,now_commit %v ,target %v", rf.me, rf.Curr_term, rf.commit_idx, temp[rf.num_most-1])
-						}
-					} else if !reply.Success {
-						DPrintf("{Node %v} term %v state %v hb %v fail ", rf.me, rf.Curr_term, rf.state, i)
-						assert(rf.state == Leader)
-						if rf.Curr_term < reply.Term {
-							// this leader is too late
-							DPrintf("{Node %v} term %v state %v reply.term is bigger %v from %v ", rf.me, rf.Curr_term, rf.state, reply.Term, i)
-							rf.Curr_term = reply.Term
-							rf.ChangeState(Follower)
-							rf.Vote_for = -1
-						} else {
-							// follower missing some log
-							assert(rf.Curr_term == reply.Term)
-							// TODO:
-							// send prevlog
-							// every rpc back 100 logs
-							rf.follower_match_idx[i] = Max(rf.follower_match_idx[i]-100, 0)
+						if reply.Success {
+							// log duplication success
+							//if len(arg.append_args.Entries) == 0 {
+							//	rf.follower_match_idx[i] = arg.append_args.PrevLogIdx
+							//	rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
+							//	return
+							//}
+							// NOTE:
+							// use prevlogidx + len not +=
+							// because there is a case:
+							// when a rpc send and block on lock()
+							// fortunately next heartbeat args are got
+							// then if rpc success , follower_match_idx will += twice.
+							rf.follower_match_idx[i] = arg.append_args.PrevLogIdx + len(arg.append_args.Entries)
 							rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
-							assert(rf.follower_match_idx[i] >= 0)
+							// update commit_idx when commit_idx < follower_match_idx
+							if rf.commit_idx < rf.follower_match_idx[i] {
+								rf.follower_match_idx[rf.me] = rf.GetRealLogLen() - 1
+								temp := make([]int, len(rf.follower_match_idx))
+
+								copy(temp, rf.follower_match_idx)
+								sort.Ints(temp)
+								if temp[rf.num_most-1] > rf.commit_idx {
+									for _, item := range rf.Log[rf.GetRealIdx(rf.commit_idx+1):rf.GetRealIdx(temp[rf.num_most-1]+1)] {
+										DPrintf("commit %v", item)
+									}
+									rf.commit_idx = temp[rf.num_most-1]
+									rf.cond_var.Signal()
+									DPrintf("{Node %v} term %v commit", rf.me, rf.Curr_term)
+								}
+								DPrintf("{Node %v} term %v ,now_commit %v ,target %v", rf.me, rf.Curr_term, rf.commit_idx, temp[rf.num_most-1])
+							}
+						} else if !reply.Success {
+							DPrintf("{Node %v} term %v state %v hb %v fail ", rf.me, rf.Curr_term, rf.state, i)
+							if rf.Curr_term < reply.Term {
+								// this leader is too late
+								DPrintf("{Node %v} term %v state %v reply.term is bigger %v from %v ", rf.me, rf.Curr_term, rf.state, reply.Term, i)
+								rf.Curr_term = reply.Term
+								rf.ChangeState(Follower)
+								rf.Vote_for = -1
+							} else {
+								// follower missing some log
+								assert(rf.Curr_term == reply.Term)
+								rf.follower_match_idx[i] = Max(rf.snapshot_idx-1, rf.follower_match_idx[i]-100)
+								rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
+							}
 						}
 					}
-				} else {
-					DPrintf("{Node %v}  term %v state %v args.term %v != rf.term %v", rf.me, rf.Curr_term, rf.state, args[i].Term, rf.Curr_term)
 				}
 			} else {
-				rf.mu.Lock()
-				defer rf.mu.Unlock()
-				DPrintf("{Node %v}  term %v state %v rpc fail %v", rf.me, rf.Curr_term, rf.state, i)
+				assert(arg.snapshot_args != nil)
+				snapshot_reply := &InstallSnapshotReply{}
+				DPrintf("{Node %v} sendInstallSnapshot %v term %v state %v snapshot_idx %v", rf.me, i, rf.Curr_term, rf.state, rf.snapshot_idx)
+				if rf.sendInstallSnapshot(i, arg.snapshot_args, snapshot_reply) {
+					rf.mu.Lock()
+					defer rf.mu.Unlock()
+					if arg.snapshot_args.Term == rf.Curr_term {
+						// 1. rpc reply must be in the same term as args
+						assert(rf.state == Leader)
+						if snapshot_reply.Success {
+							// if reply success
+							// snapshot copy
+							assert(snapshot_reply.Term <= rf.Curr_term)
+							assert(rf.snapshot_idx >= arg.snapshot_args.LastIncludeIdx)
+							rf.follower_match_idx[i] = arg.snapshot_args.LastIncludeIdx
+							rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
+							assert(rf.follower_match_idx[i] >= 0)
+						} else {
+							// if reply fail
+							// only 1 case that is leader term is not bigger than this peer
+							assert(snapshot_reply.Term > rf.Curr_term)
+							rf.ChangeState(Follower)
+							rf.Curr_term = snapshot_reply.Term
+						}
+					}
+				}
+
 			}
-		}(i)
+		}(i, arg)
 	}
 }
 func (rf *Raft) ApplyRoutine() {
 	for !rf.killed() {
 		rf.mu.Lock()
-		rf.cond_var.Wait()
-		assert(rf.last_applied < rf.commit_idx)
+		assert(rf.last_applied <= rf.commit_idx)
+		for rf.last_applied == rf.commit_idx && (rf.fromTop == true || rf.prev_snapshot_idx == rf.snapshot_idx) {
+			DPrintf("{Node %v} wait", rf.me)
+			rf.cond_var.Wait()
+		}
+		// NOTE:
+		// apply snapshot first
+		DPrintf("{Node %v} awake", rf.me)
+		if rf.snapshot_idx != rf.prev_snapshot_idx {
+			msg := ApplyMsg{
+				CommandValid:  false,
+				SnapshotValid: true,
+				SnapshotIndex: rf.snapshot_idx,
+				SnapshotTerm:  rf.snapshot_term,
+				Snapshot:      rf.SnapShotData,
+			}
+			if rf.snapshot_idx <= rf.GetLastLog().Index {
+				assert(rf.snapshot_idx == rf.Log[rf.snapshot_idx-rf.prev_snapshot_idx].Index)
+			}
+			DPrintf("{Node %v} apply snapshot term %v snapshot_idx %v", rf.me, rf.Curr_term, rf.snapshot_idx)
+			rf.mu.Unlock()
+			rf.appl_ch <- msg
+			rf.mu.Lock()
+			// after InstallSnapshot
+			// it is need to apply the following logs after snapshot_idx
+			if rf.last_applied < msg.SnapshotIndex {
+				rf.last_applied = msg.SnapshotIndex
+			}
+			if msg.SnapshotIndex > rf.GetLastLog().Index {
+				// if snapshot has included all log
+				rf.Log = make([]Entry, 1)
+				rf.Log[0].Index = msg.SnapshotIndex
+				rf.Log[0].Term = msg.SnapshotTerm
+			} else {
+				rf.Log = rf.Log[msg.SnapshotIndex-rf.prev_snapshot_idx:]
+				assert(rf.Log[0].Index == msg.SnapshotIndex)
+				rf.Log[0].Term = msg.SnapshotTerm
+			}
+			if msg.SnapshotIndex > rf.commit_idx {
+				// NOTE:
+				// InstallSnapshot can be used as hb
+				// so if snapshot_idx > commit_idx
+				// we can think that logs whose idx < snapshot_idx were committed
+				rf.commit_idx = msg.SnapshotIndex
+			}
+
+			rf.prev_snapshot_idx = msg.SnapshotIndex
+			DPrintf("{Node %v} install snapshot to statemachine term %v snapshot_idx %v last_applied %v log %v", rf.me, rf.Curr_term, rf.snapshot_idx, rf.last_applied, rf.Log)
+		}
+		rf.persist()
+
+		// apply logs
+		assert(rf.last_applied <= rf.commit_idx)
+		if rf.last_applied == rf.commit_idx {
+			// if there is no log to apply
+			// cause snapshot apply delete all obselete
+			assert(len(rf.Log) >= 1)
+			rf.mu.Unlock()
+			continue
+		}
+		temp_last_applied := rf.last_applied
+		msgs := make([]ApplyMsg, 0, rf.commit_idx-rf.last_applied)
 		for {
-			if rf.last_applied == rf.commit_idx {
+			if temp_last_applied == rf.commit_idx {
 				break
 			}
-			rf.last_applied += 1
-			assert(rf.Log[rf.last_applied].Index == rf.last_applied)
+			temp_last_applied += 1
+			assert(rf.Log[rf.GetRealIdx(temp_last_applied)].Index == temp_last_applied)
 			msg := ApplyMsg{
 				CommandValid: true,
-				Command:      rf.Log[rf.last_applied].Cmd,
-				CommandIndex: rf.last_applied,
+				Command:      rf.Log[rf.GetRealIdx(temp_last_applied)].Cmd,
+				CommandIndex: temp_last_applied,
 			}
-			rf.appl_ch <- msg
-			DPrintf("{Node %v} term %v apply %v log , msg %v", rf.me, rf.Curr_term, rf.last_applied, msg)
+			msgs = append(msgs, msg)
+			DPrintf("{Node %v} apply log term %v apply %v commit_idx %v, msg %v", rf.me, rf.Curr_term, rf.last_applied, rf.commit_idx, msg)
 		}
 		rf.mu.Unlock()
+		assert(len(msgs) == rf.commit_idx-rf.last_applied)
+		// NOTE:
+		// why prepare all msgs ,then send them all ?
+		// because tester code will call snapshot every time we apply some logs
+		// peers which appling logs need to hold lock, but snapshot also need to hold lock.
+		// So log-appling cannot hold lock.
+		// We prepare messages first, then send them all without holding lock
+		for _, msg := range msgs {
+			rf.appl_ch <- msg
+		}
+		rf.mu.Lock()
+		rf.last_applied += len(msgs)
+		rf.mu.Unlock()
+
 	}
 }
 func (rf *Raft) LogDuplicate(idx int, entries []Entry) {
 	if len(entries) == 0 {
 		return
 	}
-	assert(len(rf.Log) > idx)
+	assert(rf.GetRealLogLen() > idx)
 	// NOTE:
 	//  minus 2 is to get the NEXT log of PREV log idx
-	n := len(rf.Log) - idx - 2
+	n := rf.GetRealLogLen() - idx - 2
 	i := 0
-	DPrintf("previdx %v loglength %v entrieslen %v n %v", idx, len(rf.Log), len(entries), n)
+	DPrintf("{Node %v} previdx %v loglength %v entrieslen %v n %v", rf.me, idx, rf.GetRealLogLen(), len(entries), n)
 	for ; i <= n && i < len(entries); i++ {
-		rf.Log[idx+i+1] = entries[i]
+		rf.Log[rf.GetRealIdx(idx+i+1)] = entries[i]
 	}
 	if i < len(entries) {
 		rf.Log = append(rf.Log, entries[i:]...)
 	}
-	rf.Log = rf.Log[:idx+len(entries)+1]
+	rf.Log = rf.Log[:rf.GetRealIdx(idx+len(entries)+1)]
+	DPrintf("{Node %v} after copy log loglength %v", rf.me, rf.GetRealLogLen())
 	rf.persist()
+}
+func (rf *Raft) GetRealIdx(idx int) int {
+	if idx-rf.prev_snapshot_idx != len(rf.Log) {
+		DPrintf("{Node %v} GetRealIdx loglen %v idx %v prev_snapshot_idx %v log %v", rf.me, len(rf.Log), idx, rf.prev_snapshot_idx, rf.Log)
+		assert(rf.Log[idx-rf.prev_snapshot_idx].Index == idx)
+	}
+	return idx - rf.prev_snapshot_idx
+}
+func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapshotReply) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	if rf.Curr_term > args.Term {
+		reply.Success = false
+		reply.Term = rf.Curr_term
+		return
+	}
+	rf.counter = rf.GetBigCounter()
+	reply.Success = true
+	rf.SnapShotData = args.Snapshot
+	rf.snapshot_term = args.LastIncludeTerm
+	// NOTE:
+	// we should not cut log in this func
+	// log cutting should be did in applier
+	// idx := args.LastIncludeIdx
+	// if idx > rf.GetLastLog().Index {
+	// 	rf.Log = make([]Entry, 1)
+	// 	rf.Log[0].Index = idx
+	// 	rf.Log[0].Term = args.LastIncludeTerm
+	// } else {
+	// 	rf.Log = rf.Log[idx-rf.snapshot_idx:]
+	// }
+	rf.snapshot_idx = args.LastIncludeIdx
+	rf.persist()
+	rf.fromTop = false
+	DPrintf("{Node %v} recvinstallsnapshot term %v state %v snapshot_idx %v firstlogidx %v", rf.me, rf.Curr_term, rf.state, rf.snapshot_idx, rf.Log[0].Index)
+	rf.cond_var.Signal()
+
 }

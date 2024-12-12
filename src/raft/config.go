@@ -218,6 +218,7 @@ func (cfg *config) applierSnap(i int, applyCh chan ApplyMsg) {
 	}
 
 	for m := range applyCh {
+		DPrintf("debug node %v msg %v", i, m)
 		err_msg := ""
 		if m.SnapshotValid {
 			cfg.mu.Lock()
@@ -243,6 +244,7 @@ func (cfg *config) applierSnap(i int, applyCh chan ApplyMsg) {
 			cfg.mu.Unlock()
 
 			if (m.CommandIndex+1)%SnapShotInterval == 0 {
+				DPrintf("{Node %v} applier snapshot", i)
 				w := new(bytes.Buffer)
 				e := labgob.NewEncoder(w)
 				e.Encode(m.CommandIndex)
