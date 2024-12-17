@@ -644,6 +644,7 @@ func (cfg *config) LogSize() int {
 	for i := 0; i < cfg.n; i++ {
 		n := cfg.saved[i].RaftStateSize()
 		if n > logsize {
+			DPrintf("bigger i %v", i)
 			logsize = n
 		}
 	}

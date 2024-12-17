@@ -9,7 +9,7 @@ import (
 )
 
 // Debugging
-const Debug = true
+const Debug = false
 const ElectionTimeout = 10
 const HBTimeout = 3
 
@@ -89,16 +89,16 @@ func (rf *Raft) GetAppendArgs(i int) HBArgs {
 	} else if rf.GetLastLog().Term != rf.Curr_term {
 		// NOTE:figure 8
 		// leader only commit log whose term == Curr_term
+		DPrintf("{Node %v} term %v state %v i %v LastLogTerm %v Curr_term %v", rf.me, rf.Curr_term, rf.state, i, rf.GetLastLog().Term, rf.Curr_term)
 		assert(rf.GetLastLog().Term <= rf.Curr_term)
 		args.Entries = make([]Entry, 0)
 		args.PrevLogIdx = rf.GetLastLog().Index
 		args.PrevLogTerm = rf.GetLastLog().Term
-		DPrintf("{Node %v} term %v state %v i %v LastLogTerm %v Curr_term %v", rf.me, rf.Curr_term, rf.state, i, rf.GetLastLog().Term, rf.Curr_term)
 		ret.append_args = args
 	} else {
 		// log duplication
 		if rf.snapshot_idx <= rf.follower_match_idx[i] {
-			n := rf.next_log_idx - rf.follower_match_idx[i] - 1
+			n := rf.GetLastLog().Index - rf.follower_match_idx[i]
 			DPrintf("{Node %v} term %v state %v i %v rf.next_log_idx %v follower_match_idx[i] %v", rf.me, rf.Curr_term, rf.state, i, rf.next_log_idx, rf.follower_match_idx[i])
 			args.Entries = make([]Entry, n)
 			// there should subtract snapshot_idx
@@ -297,14 +297,15 @@ func (rf *Raft) ApplyRoutine() {
 	for !rf.killed() {
 		rf.mu.Lock()
 		assert(rf.last_applied <= rf.commit_idx)
-		for rf.last_applied == rf.commit_idx && (rf.fromTop == true || rf.prev_snapshot_idx == rf.snapshot_idx) {
+		for rf.last_applied == rf.commit_idx && (rf.fromTop == true || rf.prev_snapshot_idx == rf.snapshot_idx) && rf.force_apply == false {
 			DPrintf("{Node %v} wait", rf.me)
 			rf.cond_var.Wait()
 		}
 		// NOTE:
 		// apply snapshot first
 		DPrintf("{Node %v} awake", rf.me)
-		if rf.snapshot_idx != rf.prev_snapshot_idx {
+		if rf.snapshot_idx != rf.prev_snapshot_idx || rf.force_apply {
+			rf.force_apply = false
 			msg := ApplyMsg{
 				CommandValid:  false,
 				SnapshotValid: true,
@@ -329,7 +330,11 @@ func (rf *Raft) ApplyRoutine() {
 				rf.Log = make([]Entry, 1)
 				rf.Log[0].Index = msg.SnapshotIndex
 				rf.Log[0].Term = msg.SnapshotTerm
-			} else {
+			} else if rf.prev_snapshot_idx != msg.SnapshotIndex {
+				// NOTE:
+				// this case is that
+				// when a node restart, it need to re-apply snapshot although it prev_snapshot_idx == msg.snapshot_idx.
+				// so only if prev_snapshot_idx != snapshot_idx ,it need to compact our logs
 				rf.Log = rf.Log[msg.SnapshotIndex-rf.prev_snapshot_idx:]
 				assert(rf.Log[0].Index == msg.SnapshotIndex)
 				rf.Log[0].Term = msg.SnapshotTerm
@@ -424,6 +429,8 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 		reply.Term = rf.Curr_term
 		return
 	}
+	rf.Curr_term = args.Term
+	rf.ChangeState(Follower)
 	rf.counter = rf.GetBigCounter()
 	reply.Success = true
 	rf.SnapShotData = args.Snapshot

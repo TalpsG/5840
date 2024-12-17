@@ -1,0 +1,611 @@
+Test ID: 6
+Test (3C): basic persistence ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  2
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  3
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  4
+debug test log idx :  5
+debug test log idx :  6
+debug test log idx :  7
+  ... Passed --   6.1  3  114   26463    7
+Test (3C): more persistence ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+i 0 index 1
+disc 2 i 0
+disconnect peer 1 i 0
+disconnect peer 2 i 0
+debug test log idx :  2
+i 0 index 2
+disc 3 i 0
+disconnect peer 0 i 0
+disconnect peer 3 i 0
+disconnect peer 4 i 0
+restart 2 i 0
+restart peer 1 i 0
+restart peer 2 i 0
+connect peer 1 i 0
+connect peer 2 i 0
+awake i 0
+restart 1 i 0
+restart peer 3 i 0
+connect peer 3 i 0
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  3
+i 0 index 3
+connect 2 i 0
+connect peer 4 i 0
+connect peer 0 i 0
+debug test log idx :  4
+i 1 index 4
+disc 2 i 1
+disconnect peer 4 i 1
+disconnect peer 0 i 1
+debug test log idx :  5
+i 1 index 5
+disc 3 i 1
+disconnect peer 3 i 1
+disconnect peer 1 i 1
+disconnect peer 2 i 1
+restart 2 i 1
+restart peer 4 i 1
+restart peer 0 i 1
+connect peer 4 i 1
+connect peer 0 i 1
+awake i 1
+restart 1 i 1
+restart peer 1 i 1
+connect peer 1 i 1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  6
+i 1 index 6
+connect 2 i 1
+connect peer 2 i 1
+connect peer 3 i 1
+debug test log idx :  7
+i 2 index 7
+disc 2 i 2
+disconnect peer 2 i 2
+disconnect peer 3 i 2
+debug test log idx :  8
+i 2 index 8
+disc 3 i 2
+disconnect peer 1 i 2
+disconnect peer 4 i 2
+disconnect peer 0 i 2
+restart 2 i 2
+restart peer 2 i 2
+restart peer 3 i 2
+connect peer 2 i 2
+connect peer 3 i 2
+awake i 2
+restart 1 i 2
+restart peer 4 i 2
+connect peer 4 i 2
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  9
+i 2 index 9
+connect 2 i 2
+connect peer 0 i 2
+connect peer 1 i 2
+debug test log idx :  9
+debug test log idx :  10
+i 3 index 10
+disc 2 i 3
+disconnect peer 4 i 3
+disconnect peer 0 i 3
+debug test log idx :  11
+i 3 index 11
+disc 3 i 3
+disconnect peer 3 i 3
+disconnect peer 1 i 3
+disconnect peer 2 i 3
+restart 2 i 3
+restart peer 4 i 3
+restart peer 0 i 3
+connect peer 4 i 3
+connect peer 0 i 3
+awake i 3
+restart 1 i 3
+restart peer 1 i 3
+connect peer 1 i 3
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  12
+i 3 index 12
+connect 2 i 3
+connect peer 2 i 3
+connect peer 3 i 3
+debug test log idx :  13
+i 4 index 13
+disc 2 i 4
+disconnect peer 2 i 4
+disconnect peer 3 i 4
+debug test log idx :  14
+i 4 index 14
+disc 3 i 4
+disconnect peer 1 i 4
+disconnect peer 4 i 4
+disconnect peer 0 i 4
+restart 2 i 4
+restart peer 2 i 4
+restart peer 3 i 4
+connect peer 2 i 4
+connect peer 3 i 4
+awake i 4
+restart 1 i 4
+restart peer 4 i 4
+connect peer 4 i 4
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  15
+i 4 index 15
+connect 2 i 4
+connect peer 0 i 4
+connect peer 1 i 4
+debug test log idx :  15
+debug test log idx :  16
+  ... Passed --  17.1  5 1008  190690   16
+Test (3C): partitioned leader and one follower crash, leader restarts ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+debug test log idx :  2
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  3
+debug test log idx :  4
+  ... Passed --   2.1  3   40    9039    4
+Test (3C): Figure 8 ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  28
+  ... Passed --  35.7  5 1388  256068   28
+Test (3C): unreliable agreement ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+debug test log idx :  2
+debug test log idx :  3
+debug test log idx :  4
+debug test log idx :  5
+debug test log idx :  6
+debug test log idx :  7
+debug test log idx :  8
+debug test log idx :  9
+debug test log idx :  10
+debug test log idx :  11
+debug test log idx :  12
+debug test log idx :  13
+debug test log idx :  14
+debug test log idx :  15
+debug test log idx :  16
+debug test log idx :  17
+debug test log idx :  18
+debug test log idx :  19
+debug test log idx :  20
+debug test log idx :  21
+debug test log idx :  22
+debug test log idx :  23
+debug test log idx :  24
+debug test log idx :  25
+debug test log idx :  26
+debug test log idx :  27
+debug test log idx :  28
+debug test log idx :  29
+debug test log idx :  30
+debug test log idx :  31
+debug test log idx :  32
+debug test log idx :  33
+debug test log idx :  34
+debug test log idx :  35
+debug test log idx :  31
+debug test log idx :  32
+debug test log idx :  33
+debug test log idx :  34
+debug test log idx :  35
+debug test log idx :  36
+debug test log idx :  37
+debug test log idx :  38
+debug test log idx :  39
+debug test log idx :  40
+debug test log idx :  41
+debug test log idx :  42
+debug test log idx :  43
+debug test log idx :  44
+debug test log idx :  45
+debug test log idx :  46
+debug test log idx :  47
+debug test log idx :  48
+debug test log idx :  49
+debug test log idx :  50
+debug test log idx :  51
+debug test log idx :  52
+debug test log idx :  53
+debug test log idx :  54
+debug test log idx :  55
+debug test log idx :  56
+debug test log idx :  57
+debug test log idx :  58
+debug test log idx :  59
+debug test log idx :  60
+debug test log idx :  61
+debug test log idx :  62
+debug test log idx :  63
+debug test log idx :  64
+debug test log idx :  65
+debug test log idx :  66
+debug test log idx :  67
+debug test log idx :  68
+debug test log idx :  69
+debug test log idx :  70
+debug test log idx :  66
+debug test log idx :  67
+debug test log idx :  68
+debug test log idx :  69
+debug test log idx :  70
+debug test log idx :  71
+debug test log idx :  72
+debug test log idx :  73
+debug test log idx :  74
+debug test log idx :  75
+debug test log idx :  76
+debug test log idx :  77
+debug test log idx :  78
+debug test log idx :  79
+debug test log idx :  80
+debug test log idx :  81
+debug test log idx :  82
+debug test log idx :  83
+debug test log idx :  84
+debug test log idx :  85
+debug test log idx :  86
+debug test log idx :  87
+debug test log idx :  88
+debug test log idx :  89
+debug test log idx :  90
+debug test log idx :  91
+debug test log idx :  92
+debug test log idx :  93
+debug test log idx :  94
+debug test log idx :  95
+debug test log idx :  96
+debug test log idx :  97
+debug test log idx :  98
+debug test log idx :  99
+debug test log idx :  100
+debug test log idx :  101
+debug test log idx :  102
+debug test log idx :  103
+debug test log idx :  104
+debug test log idx :  105
+debug test log idx :  106
+debug test log idx :  107
+debug test log idx :  108
+debug test log idx :  109
+debug test log idx :  110
+debug test log idx :  111
+debug test log idx :  112
+debug test log idx :  113
+debug test log idx :  114
+debug test log idx :  115
+debug test log idx :  116
+debug test log idx :  117
+debug test log idx :  118
+debug test log idx :  119
+debug test log idx :  120
+debug test log idx :  121
+debug test log idx :  122
+debug test log idx :  123
+debug test log idx :  124
+debug test log idx :  125
+debug test log idx :  126
+debug test log idx :  127
+debug test log idx :  128
+debug test log idx :  129
+debug test log idx :  130
+debug test log idx :  131
+debug test log idx :  132
+debug test log idx :  133
+debug test log idx :  134
+debug test log idx :  135
+debug test log idx :  136
+debug test log idx :  137
+debug test log idx :  138
+debug test log idx :  139
+debug test log idx :  140
+debug test log idx :  141
+debug test log idx :  142
+debug test log idx :  143
+debug test log idx :  144
+debug test log idx :  145
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  146
+debug test log idx :  147
+debug test log idx :  148
+debug test log idx :  149
+debug test log idx :  150
+debug test log idx :  151
+debug test log idx :  152
+debug test log idx :  153
+debug test log idx :  154
+debug test log idx :  155
+debug test log idx :  156
+debug test log idx :  157
+debug test log idx :  158
+debug test log idx :  159
+debug test log idx :  160
+debug test log idx :  161
+debug test log idx :  162
+debug test log idx :  163
+debug test log idx :  164
+debug test log idx :  165
+debug test log idx :  166
+debug test log idx :  167
+debug test log idx :  168
+debug test log idx :  169
+debug test log idx :  170
+debug test log idx :  171
+debug test log idx :  172
+debug test log idx :  173
+debug test log idx :  174
+debug test log idx :  175
+debug test log idx :  176
+debug test log idx :  177
+debug test log idx :  178
+debug test log idx :  179
+debug test log idx :  180
+debug test log idx :  181
+debug test log idx :  182
+debug test log idx :  183
+debug test log idx :  184
+debug test log idx :  185
+debug test log idx :  186
+debug test log idx :  187
+debug test log idx :  188
+debug test log idx :  189
+debug test log idx :  190
+debug test log idx :  191
+debug test log idx :  192
+debug test log idx :  193
+debug test log idx :  194
+debug test log idx :  195
+debug test log idx :  191
+debug test log idx :  192
+debug test log idx :  193
+debug test log idx :  194
+debug test log idx :  195
+debug test log idx :  196
+debug test log idx :  197
+debug test log idx :  198
+debug test log idx :  199
+debug test log idx :  200
+debug test log idx :  201
+debug test log idx :  202
+debug test log idx :  203
+debug test log idx :  204
+debug test log idx :  205
+debug test log idx :  206
+debug test log idx :  207
+debug test log idx :  208
+debug test log idx :  209
+debug test log idx :  210
+debug test log idx :  211
+debug test log idx :  212
+debug test log idx :  213
+debug test log idx :  214
+debug test log idx :  215
+debug test log idx :  211
+debug test log idx :  212
+debug test log idx :  213
+debug test log idx :  214
+debug test log idx :  215
+debug test log idx :  216
+debug test log idx :  217
+debug test log idx :  218
+debug test log idx :  219
+debug test log idx :  220
+debug test log idx :  221
+debug test log idx :  222
+debug test log idx :  223
+debug test log idx :  224
+debug test log idx :  225
+debug test log idx :  226
+debug test log idx :  227
+debug test log idx :  228
+debug test log idx :  229
+debug test log idx :  230
+debug test log idx :  231
+debug test log idx :  232
+debug test log idx :  233
+debug test log idx :  234
+debug test log idx :  235
+debug test log idx :  236
+debug test log idx :  237
+debug test log idx :  238
+debug test log idx :  239
+debug test log idx :  240
+debug test log idx :  241
+debug test log idx :  242
+debug test log idx :  243
+debug test log idx :  244
+debug test log idx :  245
+debug test log idx :  246
+debug test log idx :  247
+debug test log idx :  248
+debug test log idx :  249
+debug test log idx :  250
+debug test log idx :  251
+debug test log idx :  252
+debug test log idx :  253
+debug test log idx :  254
+debug test log idx :  255
+debug test log idx :  256
+debug test log idx :  257
+debug test log idx :  258
+debug test log idx :  259
+debug test log idx :  260
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  261
+debug test log idx :  262
+debug test log idx :  263
+debug test log idx :  264
+debug test log idx :  265
+debug test log idx :  266
+debug test log idx :  267
+debug test log idx :  268
+debug test log idx :  269
+debug test log idx :  270
+debug test log idx :  266
+debug test log idx :  267
+debug test log idx :  268
+debug test log idx :  269
+debug test log idx :  270
+debug test log idx :  271
+  ... Passed --  27.2  5 1160  303300  271
+Test (3C): Figure 8 (unreliable) ...
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  1
+debug test log idx :  775
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  507
+debug test log idx :  508
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  -1
+debug test log idx :  509
+--- FAIL: TestFigure8Unreliable3C (42.39s)
+    config.go:604: one(148) failed to reach agreement
+Test (3C): churn ...
+debug test log idx :  327
+  ... Passed --  16.2  5  548  789761  327
+Test (3C): unreliable churn ...
+debug test log idx :  127
+  ... Passed --  16.3  5  712  239194  127
+FAIL
+exit status 1
+FAIL	6.5840/raft	164.702s

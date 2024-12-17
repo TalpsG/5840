@@ -121,7 +121,8 @@ type Raft struct {
 	snapshot_term     int
 	SnapShotData      []byte
 	// is snapshot from Snapshot API or InstallSnapshot
-	fromTop bool
+	fromTop     bool
+	force_apply bool
 }
 
 // return currentTerm and whether this server
@@ -161,6 +162,7 @@ func (rf *Raft) persist() {
 	// lab3d
 	e.Encode(rf.snapshot_idx)
 	e.Encode(rf.prev_snapshot_idx)
+	e.Encode(rf.snapshot_term)
 	e.Encode(rf.Log)
 	raftstate := w.Bytes()
 	DPrintf("Persist {Node %v} curr_term %v vote_for %v loglength %v", rf.me, rf.Curr_term, rf.Vote_for, rf.Log)
@@ -180,20 +182,29 @@ func (rf *Raft) readPersist(data []byte) {
 	var vote int
 	var snapshot_idx int
 	var prev_snapshot_idx int
+	var snapshot_term int
 	var log []Entry
 	if d.Decode(&term) != nil ||
 		d.Decode(&vote) != nil ||
 		d.Decode(&snapshot_idx) != nil ||
 		d.Decode(&prev_snapshot_idx) != nil ||
+		d.Decode(&snapshot_term) != nil ||
 		d.Decode(&log) != nil {
 		panic("decode type error ")
-	} else {
-		rf.Curr_term = term
-		rf.Vote_for = vote
-		rf.snapshot_idx = snapshot_idx
-		rf.prev_snapshot_idx = prev_snapshot_idx
-		rf.Log = log
 	}
+
+	rf.Curr_term = term
+	rf.Vote_for = vote
+	rf.snapshot_idx = snapshot_idx
+	rf.prev_snapshot_idx = prev_snapshot_idx
+	rf.snapshot_term = snapshot_term
+	rf.Log = log
+	rf.persister.ReadRaftState()
+	rf.SnapShotData = rf.persister.ReadSnapshot()
+	if len(rf.SnapShotData) == 0 {
+		rf.SnapShotData = nil
+	}
+
 	assert(rf.state == Follower)
 	rf.state = Follower
 	for i := 0; i < len(rf.follower_match_idx); i++ {
@@ -207,6 +218,9 @@ func (rf *Raft) readPersist(data []byte) {
 		rf.last_applied = rf.prev_snapshot_idx
 	}
 	rf.commit_idx = rf.last_applied
+	if rf.SnapShotData != nil {
+		rf.force_apply = true
+	}
 	DPrintf("readPersist {Node %v} curr_term %v vote_for %v loglength %v", rf.me, rf.Curr_term, rf.Vote_for, rf.Log)
 }
 

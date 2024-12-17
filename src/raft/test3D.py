@@ -6,8 +6,8 @@ import os
 # 配置
 command = ["go", "test", "-run", "3D"]  # 要执行的命令
 output_file = "3D.log"        # 错误日志文件
-concurrency = 10                        # 并发数
-total_tests = 10                      # 测试总次数
+concurrency = 3                        # 并发数
+total_tests = 1000                      # 测试总次数
 
 # 任务队列
 task_queue = queue.Queue()
@@ -33,6 +33,8 @@ def worker():
                         f.write(result.stderr)
                     terminate_flag.set()  # 设置终止标志
                     print(f"Test {test_id} failed. Output saved to {output_file}.")
+            else:
+                print(f"Test {test_id} successfully")
         except Exception as e:
             with lock:
                 print(f"Error while running test {test_id}: {e}")

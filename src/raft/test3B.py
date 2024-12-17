@@ -6,8 +6,8 @@ import os
 # 配置
 command = ["go", "test", "-run", "3B"]  # 要执行的命令
 output_file = "3B.log"        # 错误日志文件
-concurrency = 10                        # 并发数
-total_tests = 10                       # 测试总次数
+concurrency = 1                        # 并发数
+total_tests = 100                       # 测试总次数
 
 # 任务队列
 task_queue = queue.Queue()
