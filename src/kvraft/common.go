@@ -6,6 +6,13 @@ const (
 	ErrWrongLeader = "ErrWrongLeader"
 )
 
+type MessageType int
+
+const (
+	Modify = iota
+	Report
+)
+
 type Err string
 
 // Put or Append
@@ -15,10 +22,13 @@ type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
+	OpId int64
+	Msg  MessageType
 }
 
 type PutAppendReply struct {
-	Err Err
+	Err   Err
+	Value string
 }
 
 type GetArgs struct {
