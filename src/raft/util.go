@@ -9,9 +9,9 @@ import (
 )
 
 // Debugging
-const Debug = false
+const Debug = true
 const ElectionTimeout = 10
-const HBTimeout = 3
+const HBTimeout = 6
 
 var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 var rnd_mtx sync.Mutex
@@ -377,8 +377,8 @@ func (rf *Raft) ApplyRoutine() {
 			msgs = append(msgs, msg)
 			DPrintf("{Node %v} apply log term %v apply %v commit_idx %v, msg %v", rf.me, rf.Curr_term, rf.last_applied, rf.commit_idx, msg)
 		}
-		rf.mu.Unlock()
 		assert(len(msgs) == rf.commit_idx-rf.last_applied)
+		rf.mu.Unlock()
 		// NOTE:
 		// why prepare all msgs ,then send them all ?
 		// because tester code will call snapshot every time we apply some logs

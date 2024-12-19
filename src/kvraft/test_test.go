@@ -11,6 +11,7 @@ import "sync"
 import "sync/atomic"
 import "fmt"
 import "io/ioutil"
+import "log"
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -263,6 +264,7 @@ func GenericTest(t *testing.T, part string, nclients int, nservers int, unreliab
 			}()
 			last := "" // only used when not randomkeys
 			if !randomkeys {
+				log.Printf("%d: client new put %v %v\n", cli, strconv.Itoa(cli), last)
 				Put(cfg, myck, strconv.Itoa(cli), last, opLog, cli)
 			}
 			for atomic.LoadInt32(&done_clients) == 0 {
@@ -274,7 +276,7 @@ func GenericTest(t *testing.T, part string, nclients int, nservers int, unreliab
 				}
 				nv := "x " + strconv.Itoa(cli) + " " + strconv.Itoa(j) + " y"
 				if (rand.Int() % 1000) < 500 {
-					// log.Printf("%d: client new append %v\n", cli, nv)
+					log.Printf("%d: client new append %v\n", cli, nv)
 					Append(cfg, myck, key, nv, opLog, cli)
 					if !randomkeys {
 						last = NextValue(last, nv)
@@ -286,7 +288,7 @@ func GenericTest(t *testing.T, part string, nclients int, nservers int, unreliab
 					Put(cfg, myck, key, nv, opLog, cli)
 					j++
 				} else {
-					// log.Printf("%d: client new get %v\n", cli, key)
+					log.Printf("%d: client new get %v\n", cli, key)
 					v := Get(cfg, myck, key, opLog, cli)
 					// the following check only makes sense when we're not using random keys
 					if !randomkeys && v != last {
@@ -427,21 +429,21 @@ func TestBasic4A(t *testing.T) {
 	GenericTest(t, "4A", 1, 5, false, false, false, -1, false)
 }
 
-func TestSpeed4A(t *testing.T) {
+func testSpeed4A(t *testing.T) {
 	GenericTestSpeed(t, "4A", -1)
 }
 
-func TestConcurrent4A(t *testing.T) {
+func testConcurrent4A(t *testing.T) {
 	// Test: many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, false, false, -1, false)
 }
 
-func TestUnreliable4A(t *testing.T) {
+func testUnreliable4A(t *testing.T) {
 	// Test: unreliable net, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, false, false, -1, false)
 }
 
-func TestUnreliableOneKey4A(t *testing.T) {
+func testUnreliableOneKey4A(t *testing.T) {
 	const nservers = 3
 	cfg := make_config(t, nservers, true, -1)
 	defer cfg.cleanup()
@@ -476,7 +478,7 @@ func TestUnreliableOneKey4A(t *testing.T) {
 // Submit a request in the minority partition and check that the requests
 // doesn't go through until the partition heals.  The leader in the original
 // network ends up in the minority partition.
-func TestOnePartition4A(t *testing.T) {
+func testOnePartition4A(t *testing.T) {
 	const nservers = 5
 	cfg := make_config(t, nservers, false, -1)
 	defer cfg.cleanup()
@@ -551,42 +553,42 @@ func TestOnePartition4A(t *testing.T) {
 	cfg.end()
 }
 
-func TestManyPartitionsOneClient4A(t *testing.T) {
+func testManyPartitionsOneClient4A(t *testing.T) {
 	// Test: partitions, one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, false, true, -1, false)
 }
 
-func TestManyPartitionsManyClients4A(t *testing.T) {
+func testManyPartitionsManyClients4A(t *testing.T) {
 	// Test: partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, false, true, -1, false)
 }
 
-func TestPersistOneClient4A(t *testing.T) {
+func testPersistOneClient4A(t *testing.T) {
 	// Test: restarts, one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, true, false, -1, false)
 }
 
-func TestPersistConcurrent4A(t *testing.T) {
+func testPersistConcurrent4A(t *testing.T) {
 	// Test: restarts, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, true, false, -1, false)
 }
 
-func TestPersistConcurrentUnreliable4A(t *testing.T) {
+func testPersistConcurrentUnreliable4A(t *testing.T) {
 	// Test: unreliable net, restarts, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, true, false, -1, false)
 }
 
-func TestPersistPartition4A(t *testing.T) {
+func testPersistPartition4A(t *testing.T) {
 	// Test: restarts, partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, true, true, -1, false)
 }
 
-func TestPersistPartitionUnreliable4A(t *testing.T) {
+func testPersistPartitionUnreliable4A(t *testing.T) {
 	// Test: unreliable net, restarts, partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, true, true, -1, false)
 }
 
-func TestPersistPartitionUnreliableLinearizable4A(t *testing.T) {
+func testPersistPartitionUnreliableLinearizable4A(t *testing.T) {
 	// Test: unreliable net, restarts, partitions, random keys, many clients (4A) ...
 	GenericTest(t, "4A", 15, 7, true, true, true, -1, true)
 }

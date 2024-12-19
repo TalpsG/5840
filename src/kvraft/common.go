@@ -1,5 +1,11 @@
 package kvraft
 
+func assert(t bool) {
+	if !t {
+		panic("bool ")
+	}
+}
+
 const (
 	OK             = "OK"
 	ErrNoKey       = "ErrNoKey"
@@ -14,6 +20,18 @@ const (
 )
 
 type Err string
+
+type ExecuteCmdArgs struct {
+	Operation string
+	Key       string
+	Value     string
+	ClientId  int64
+	CmdId     int64
+}
+type ExecuteCmdReply struct {
+	Erro  Err
+	Value string
+}
 
 // Put or Append
 type PutAppendArgs struct {
