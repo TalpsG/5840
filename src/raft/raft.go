@@ -530,7 +530,7 @@ func (rf *Raft) killed() bool {
 }
 
 func (rf *Raft) ticker() {
-	timer := time.NewTimer(30 * time.Millisecond)
+	timer := time.NewTimer(10 * time.Millisecond)
 	for rf.killed() == false {
 
 		// Your code here (3A)

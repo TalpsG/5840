@@ -5,13 +5,14 @@ import (
 	"log"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"6.5840/labgob"
 	"6.5840/labrpc"
 	"6.5840/raft"
 )
 
-const Debug = true
+const Debug = false
 
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug {
@@ -84,18 +85,21 @@ func (kv *KVServer) Get(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
 	kv.Lock()
 	ch := kv.GetResultChannel(index)
 	kv.Unlock()
-	applied := <-ch
-
-	assert(applied.Erro == OK)
-
-	reply.Erro = applied.Erro
-	reply.Value = applied.Value
+	select {
+	case applied := <-ch:
+		assert(applied.Erro == OK)
+		reply.Erro = OK
+		reply.Value = applied.Value
+		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
+	case <-time.After(500 * time.Millisecond):
+		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
+		reply.Erro = ErrTimeout
+	}
 	go func() {
 		kv.Lock()
 		kv.DeleteResultChannel(index)
 		defer kv.Unlock()
 	}()
-	DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
 }
 
 func (kv *KVServer) ApplyLog(args *ExecuteCmdArgs) string {
@@ -137,15 +141,20 @@ func (kv *KVServer) Put(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
 	kv.Lock()
 	ch := kv.GetResultChannel(index)
 	kv.Unlock()
-	applied := <-ch
-	assert(applied.Erro == OK)
-	reply.Erro = applied.Erro
+	select {
+	case applied := <-ch:
+		assert(applied.Erro == OK)
+		reply.Erro = OK
+		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
+	case <-time.After(1000 * time.Millisecond):
+		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
+		reply.Erro = ErrTimeout
+	}
 	go func() {
 		kv.Lock()
 		kv.DeleteResultChannel(index)
 		defer kv.Unlock()
 	}()
-	DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
 }
 
 func (kv *KVServer) Append(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
@@ -172,15 +181,20 @@ func (kv *KVServer) Append(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
 	kv.Lock()
 	ch := kv.GetResultChannel(index)
 	kv.Unlock()
-	applied := <-ch
-	assert(applied.Erro == OK)
-	reply.Erro = applied.Erro
+	select {
+	case applied := <-ch:
+		assert(applied.Erro == OK)
+		reply.Erro = OK
+		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
+	case <-time.After(1000 * time.Millisecond):
+		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
+		reply.Erro = ErrTimeout
+	}
 	go func() {
 		kv.Lock()
 		kv.DeleteResultChannel(index)
 		defer kv.Unlock()
 	}()
-	DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
 }
 
 // the tester calls Kill() when a KVServer instance won't

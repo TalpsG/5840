@@ -1,17 +1,22 @@
 package kvraft
 
-import "6.5840/porcupine"
-import "6.5840/models"
-import "testing"
-import "strconv"
-import "time"
-import "math/rand"
-import "strings"
-import "sync"
-import "sync/atomic"
-import "fmt"
-import "io/ioutil"
-import "log"
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"math/rand"
+	"os"
+	"runtime/pprof"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"6.5840/models"
+	"6.5840/porcupine"
+)
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -424,12 +429,25 @@ func GenericTestSpeed(t *testing.T, part string, maxraftstate int) {
 	cfg.end()
 }
 
-func TestBasic4A(t *testing.T) {
+func testBasic4A(t *testing.T) {
 	// Test: one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, false, false, -1, false)
 }
 
-func testSpeed4A(t *testing.T) {
+func TestSpeed4A(t *testing.T) {
+
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		log.Fatal("无法创建 CPU 性能分析文件: ", err)
+	}
+	defer f.Close()
+
+	// 启动 CPU 分析
+	if err := pprof.StartCPUProfile(f); err != nil {
+		log.Fatal("无法启动 CPU 分析: ", err)
+	}
+	defer pprof.StopCPUProfile() // 程序结束时停止分析
+
 	GenericTestSpeed(t, "4A", -1)
 }
 
