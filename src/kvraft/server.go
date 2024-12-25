@@ -51,13 +51,19 @@ type KVServer struct {
 	last_apply int
 }
 
+const LockDebug = false
+
 func (kv *KVServer) Lock() {
-	DPrintf("{Server %v} Locking", kv.me)
+	if LockDebug {
+		fmt.Printf("{Server %v} Locking\n", kv.me)
+	}
 	kv.mu.Lock()
 }
 
 func (kv *KVServer) Unlock() {
-	DPrintf("{Server %v} Unlock", kv.me)
+	if LockDebug {
+		fmt.Printf("{Server %v} Unlock\n", kv.me)
+	}
 	kv.mu.Unlock()
 }
 func (kv *KVServer) Get(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
@@ -88,17 +94,19 @@ func (kv *KVServer) Get(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
 	select {
 	case applied := <-ch:
 		assert(applied.Erro == OK)
+		DPrintf("{Server %v} applied.cmdid %v args.cmdid %v", kv.me, applied.CmdId, args.CmdId)
+		assert(applied.CmdId == args.CmdId)
 		reply.Erro = OK
 		reply.Value = applied.Value
 		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
-	case <-time.After(500 * time.Millisecond):
+	case <-time.After(300 * time.Millisecond):
 		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
 		reply.Erro = ErrTimeout
 	}
 	go func() {
 		kv.Lock()
-		kv.DeleteResultChannel(index)
 		defer kv.Unlock()
+		kv.DeleteResultChannel(index)
 	}()
 }
 
@@ -108,8 +116,10 @@ func (kv *KVServer) ApplyLog(args *ExecuteCmdArgs) string {
 		return kv.db[args.Key]
 	case "Put":
 		kv.db[args.Key] = args.Value
+		return args.Value
 	case "Append":
 		kv.db[args.Key] += args.Value
+		return kv.db[args.Key]
 	default:
 		panic(fmt.Sprintf("unknown Operation %v", args.Operation))
 	}
@@ -259,25 +269,29 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 			assert(kv.last_apply < msg.CommandIndex)
 			args := msg.Command.(ExecuteCmdArgs)
 			DPrintf("{Server %v} apply log %v", kv.me, args)
+			if r, ok := kv.records[args.ClientId]; ok && r.CmdId >= args.CmdId {
+				DPrintf("{Server %v} apply log %v redundant", kv.me, args)
+				kv.Unlock()
+				continue
+			}
 			ret := kv.ApplyLog(&args)
 			if r, ok := kv.records[args.ClientId]; !ok || r == nil {
 				kv.records[args.ClientId] = &Record{
-					LastReply: ExecuteCmdReply{Erro: OK},
+					LastReply: ExecuteCmdReply{Erro: OK, CmdId: args.CmdId},
 				}
 			}
 			kv.records[args.ClientId].CmdId = args.CmdId
 			kv.records[args.ClientId].Operation = args.Operation
-			if args.Operation == "Get" {
-				kv.records[args.ClientId].LastReply.Value = ret
-			}
+			kv.records[args.ClientId].LastReply.CmdId = args.CmdId
+			kv.records[args.ClientId].LastReply.Value = ret
 			DPrintf("{Server %v} store last reply %v", kv.me, *kv.records[args.ClientId])
 			kv.last_apply = msg.CommandIndex
 			if _, is_leader := kv.rf.GetState(); is_leader {
 				DPrintf("{Server %v} client_id %v cmd_id %v reply %v sending", kv.me, args.ClientId, args.CmdId, kv.records[args.ClientId].LastReply)
+				reply := &kv.records[args.ClientId].LastReply
 				result_ch := kv.GetResultChannel(msg.CommandIndex)
-				result_ch <- &kv.records[args.ClientId].LastReply
+				result_ch <- reply
 			}
-			DPrintf("{Server %v} client_id %v cmd_id %v reply %v", kv.me, args.ClientId, args.CmdId, kv.records[args.ClientId].LastReply)
 			kv.Unlock()
 		}
 	}()
@@ -291,7 +305,7 @@ func (kv *KVServer) DeleteResultChannel(index int) {
 func (kv *KVServer) GetResultChannel(index int) chan *ExecuteCmdReply {
 	if _, ok := kv.result_ch[index]; !ok {
 		DPrintf("{Server %v} create result_ch %v ", kv.me, index)
-		kv.result_ch[index] = make(chan *ExecuteCmdReply)
+		kv.result_ch[index] = make(chan *ExecuteCmdReply, 1)
 	}
 	DPrintf("{Server %v} get result_ch %v ", kv.me, index)
 	return kv.result_ch[index]

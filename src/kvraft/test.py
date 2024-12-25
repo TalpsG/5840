@@ -4,10 +4,10 @@ import queue
 import os
 
 # 配置
-command = ["go", "test", "-race","-run", "4A"]  # 要执行的命令
+command = ["go", "test", "-run", "4A"]  # 要执行的命令
 output_file = "error_output.log"        # 错误日志文件
-concurrency = 1                        # 并发数
-total_tests = 100                       # 测试总次数
+concurrency = 10                        # 并发数
+total_tests = 1000                       # 测试总次数
 
 # 任务队列
 task_queue = queue.Queue()

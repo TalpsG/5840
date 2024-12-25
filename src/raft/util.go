@@ -11,7 +11,7 @@ import (
 // Debugging
 const Debug = false
 const ElectionTimeout = 10
-const HBTimeout = 2
+const HBTimeout = 1
 
 var rnd = rand.New(rand.NewSource(time.Now().Unix()))
 var rnd_mtx sync.Mutex
@@ -255,7 +255,7 @@ func (rf *Raft) BroadCastHB() {
 							} else {
 								// follower missing some log
 								assert(rf.Curr_term == reply.Term)
-								rf.follower_match_idx[i] = Max(rf.snapshot_idx-1, rf.follower_match_idx[i]-10)
+								rf.follower_match_idx[i] = Max(rf.snapshot_idx-1, rf.follower_match_idx[i]-100)
 								rf.follower_next_idx[i] = rf.follower_match_idx[i] + 1
 							}
 						}

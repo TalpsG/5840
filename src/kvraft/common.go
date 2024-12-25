@@ -11,6 +11,7 @@ const (
 	ErrNoKey       = "ErrNoKey"
 	ErrWrongLeader = "ErrWrongLeader"
 	ErrTimeout     = "ErrTimeout"
+	ErrOutdated    = "ErrOutdated"
 )
 
 type MessageType int
@@ -31,6 +32,7 @@ type ExecuteCmdArgs struct {
 }
 type ExecuteCmdReply struct {
 	Erro  Err
+	CmdId int64
 	Value string
 }
 

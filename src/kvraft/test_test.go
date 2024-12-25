@@ -147,14 +147,14 @@ func checkClntAppends(t *testing.T, clnt int, v string, count int) {
 		wanted := "x " + strconv.Itoa(clnt) + " " + strconv.Itoa(j) + " y"
 		off := strings.Index(v, wanted)
 		if off < 0 {
-			t.Fatalf("%v missing element %v in Append result %v", clnt, wanted, v)
+			t.Fatalf("checkClntAppends %v missing element %v in Append result %v", clnt, wanted, v)
 		}
 		off1 := strings.LastIndex(v, wanted)
 		if off1 != off {
-			t.Fatalf("duplicate element %v in Append result", wanted)
+			t.Fatalf("checkClntAppends duplicate element %v in Append result", wanted)
 		}
 		if off <= lastoff {
-			t.Fatalf("wrong order for element %v in Append result", wanted)
+			t.Fatalf("checkClntAppends wrong order for element %v in Append result", wanted)
 		}
 		lastoff = off
 	}
@@ -170,14 +170,14 @@ func checkConcurrentAppends(t *testing.T, v string, counts []int) {
 			wanted := "x " + strconv.Itoa(i) + " " + strconv.Itoa(j) + " y"
 			off := strings.Index(v, wanted)
 			if off < 0 {
-				t.Fatalf("%v missing element %v in Append result %v", i, wanted, v)
+				t.Fatalf("checkConcurrentAppends %v missing element %v in Append result %v", i, wanted, v)
 			}
 			off1 := strings.LastIndex(v, wanted)
 			if off1 != off {
-				t.Fatalf("duplicate element %v in Append result", wanted)
+				t.Fatalf("checkConcurrentAppends duplicate element %v in Append result", wanted)
 			}
 			if off <= lastoff {
-				t.Fatalf("wrong order for element %v in Append result", wanted)
+				t.Fatalf("checkConcurrentAppends wrong order for element %v in Append result", wanted)
 			}
 			lastoff = off
 		}
@@ -202,6 +202,8 @@ func partitioner(t *testing.T, cfg *config, ch chan bool, done *int32) {
 			}
 		}
 		cfg.partition(pa[0], pa[1])
+		fmt.Println("p1 : ", pa[0])
+		fmt.Println("p2 : ", pa[1])
 		time.Sleep(electionTimeout + time.Duration(rand.Int63()%200)*time.Millisecond)
 	}
 }
@@ -429,7 +431,7 @@ func GenericTestSpeed(t *testing.T, part string, maxraftstate int) {
 	cfg.end()
 }
 
-func testBasic4A(t *testing.T) {
+func TestBasic4A(t *testing.T) {
 	// Test: one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, false, false, -1, false)
 }
@@ -451,17 +453,17 @@ func TestSpeed4A(t *testing.T) {
 	GenericTestSpeed(t, "4A", -1)
 }
 
-func testConcurrent4A(t *testing.T) {
+func TestConcurrent4A(t *testing.T) {
 	// Test: many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, false, false, -1, false)
 }
 
-func testUnreliable4A(t *testing.T) {
+func TestUnreliable4A(t *testing.T) {
 	// Test: unreliable net, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, false, false, -1, false)
 }
 
-func testUnreliableOneKey4A(t *testing.T) {
+func TestUnreliableOneKey4A(t *testing.T) {
 	const nservers = 3
 	cfg := make_config(t, nservers, true, -1)
 	defer cfg.cleanup()
@@ -496,7 +498,7 @@ func testUnreliableOneKey4A(t *testing.T) {
 // Submit a request in the minority partition and check that the requests
 // doesn't go through until the partition heals.  The leader in the original
 // network ends up in the minority partition.
-func testOnePartition4A(t *testing.T) {
+func TestOnePartition4A(t *testing.T) {
 	const nservers = 5
 	cfg := make_config(t, nservers, false, -1)
 	defer cfg.cleanup()
@@ -507,6 +509,7 @@ func testOnePartition4A(t *testing.T) {
 	cfg.begin("Test: progress in majority (4A)")
 
 	p1, p2 := cfg.make_partition()
+	fmt.Println("p1", p1, "| p2", p2)
 	cfg.partition(p1, p2)
 
 	ckp1 := cfg.makeClient(p1)  // connect ckp1 to p1
@@ -571,42 +574,43 @@ func testOnePartition4A(t *testing.T) {
 	cfg.end()
 }
 
-func testManyPartitionsOneClient4A(t *testing.T) {
+func TestManyPartitionsOneClient4A(t *testing.T) {
 	// Test: partitions, one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, false, true, -1, false)
+
 }
 
-func testManyPartitionsManyClients4A(t *testing.T) {
+func TestManyPartitionsManyClients4A(t *testing.T) {
 	// Test: partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, false, true, -1, false)
 }
 
-func testPersistOneClient4A(t *testing.T) {
+func TestPersistOneClient4A(t *testing.T) {
 	// Test: restarts, one client (4A) ...
 	GenericTest(t, "4A", 1, 5, false, true, false, -1, false)
 }
 
-func testPersistConcurrent4A(t *testing.T) {
+func TestPersistConcurrent4A(t *testing.T) {
 	// Test: restarts, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, true, false, -1, false)
 }
 
-func testPersistConcurrentUnreliable4A(t *testing.T) {
+func TestPersistConcurrentUnreliable4A(t *testing.T) {
 	// Test: unreliable net, restarts, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, true, false, -1, false)
 }
 
-func testPersistPartition4A(t *testing.T) {
+func TestPersistPartition4A(t *testing.T) {
 	// Test: restarts, partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, false, true, true, -1, false)
 }
 
-func testPersistPartitionUnreliable4A(t *testing.T) {
+func TestPersistPartitionUnreliable4A(t *testing.T) {
 	// Test: unreliable net, restarts, partitions, many clients (4A) ...
 	GenericTest(t, "4A", 5, 5, true, true, true, -1, false)
 }
 
-func testPersistPartitionUnreliableLinearizable4A(t *testing.T) {
+func TestPersistPartitionUnreliableLinearizable4A(t *testing.T) {
 	// Test: unreliable net, restarts, partitions, random keys, many clients (4A) ...
 	GenericTest(t, "4A", 15, 7, true, true, true, -1, true)
 }

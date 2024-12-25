@@ -35,7 +35,7 @@ func (ck *Clerk) ExecuteCmd(args *ExecuteCmdArgs) string {
 	reply := ExecuteCmdReply{}
 	for {
 		DPrintf("{client %v} %v key %v cmd_id %v leader_id %v", ck.client_id, args.Operation, args.Key, args.CmdId, ck.leader_id)
-		if !ck.servers[ck.leader_id].Call("KVServer."+args.Operation, args, &reply) || reply.Erro == ErrWrongLeader {
+		if !ck.servers[ck.leader_id].Call("KVServer."+args.Operation, args, &reply) || reply.Erro == ErrWrongLeader || reply.Erro == ErrTimeout {
 			// if rpc fail or this node is not leader
 			ck.leader_id = (ck.leader_id + 1) % len(ck.servers)
 			continue
