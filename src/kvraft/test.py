@@ -38,6 +38,7 @@ def worker():
         except Exception as e:
             with lock:
                 print(f"Error while running test {test_id}: {e}")
+                break
         finally:
             task_queue.task_done()
 

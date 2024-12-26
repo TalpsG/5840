@@ -290,9 +290,11 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 				DPrintf("{Server %v} client_id %v cmd_id %v reply %v sending", kv.me, args.ClientId, args.CmdId, kv.records[args.ClientId].LastReply)
 				reply := &kv.records[args.ClientId].LastReply
 				result_ch := kv.GetResultChannel(msg.CommandIndex)
+				kv.Unlock()
 				result_ch <- reply
+			} else {
+				kv.Unlock()
 			}
-			kv.Unlock()
 		}
 	}()
 

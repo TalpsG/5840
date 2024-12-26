@@ -377,8 +377,8 @@ func (rf *Raft) ApplyRoutine() {
 			msgs = append(msgs, msg)
 			DPrintf("{Node %v} apply log term %v apply %v commit_idx %v, msg %v", rf.me, rf.Curr_term, rf.last_applied, rf.commit_idx, msg)
 		}
-		assert(len(msgs) == rf.commit_idx-rf.last_applied)
 		rf.mu.Unlock()
+		assert(len(msgs) == rf.commit_idx-rf.last_applied)
 		// NOTE:
 		// why prepare all msgs ,then send them all ?
 		// because tester code will call snapshot every time we apply some logs
@@ -453,3 +453,4 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 	rf.cond_var.Signal()
 
 }
+
