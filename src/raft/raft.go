@@ -65,6 +65,7 @@ type ApplyMsg struct {
 	CommandIndex int
 
 	// For 3D:
+	CommandTerm   int
 	SnapshotValid bool
 	Snapshot      []byte
 	SnapshotTerm  int
@@ -127,6 +128,9 @@ type Raft struct {
 
 // return currentTerm and whether this server
 // believes it is the leader.
+func (rf *Raft) GetRaftStateSize() int {
+	return rf.persister.SnapshotSize()
+}
 func (rf *Raft) GetState() (int, bool) {
 
 	var term int
@@ -137,6 +141,7 @@ func (rf *Raft) GetState() (int, bool) {
 	term, isleader = rf.Curr_term, rf.state == Leader
 	return term, isleader
 }
+func (rf *Raft) GetId() int { return rf.me }
 
 // save Raft's persistent state to stable storage,
 // where it can later be retrieved after a crash and restart.
@@ -620,4 +625,35 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	// lab3a set timer
 	return rf
 }
+func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int, snapshot []byte) bool {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	// outdated snapshot
+	if lastIncludedIndex <= rf.commit_idx {
+		return false
+	}
+	// need dummy entry at index 0
+	if lastIncludedIndex > rf.GetLastLog().Index {
+		rf.Log = make([]Entry, 1)
+	} else {
+		rf.Log = rf.Log[lastIncludedIndex-rf.Log[0].Index:]
+		rf.Log[0].Cmd = nil
+	}
+	rf.Log[0].Term, rf.Log[0].Index = lastIncludedTerm, lastIncludedIndex
+	rf.commit_idx, rf.last_applied = lastIncludedIndex, lastIncludedIndex
 
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	// NOTE encoding and decoding must be a same sequence
+	e.Encode(rf.Curr_term)
+	e.Encode(rf.Vote_for)
+	// lab3d
+	e.Encode(rf.snapshot_idx)
+	e.Encode(rf.prev_snapshot_idx)
+	e.Encode(rf.snapshot_term)
+	e.Encode(rf.Log)
+	raftstate := w.Bytes()
+	rf.persister.Save(raftstate, snapshot)
+
+	return true
+}

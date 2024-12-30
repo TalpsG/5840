@@ -1,63 +1,92 @@
 package kvraft
 
-func assert(t bool) {
-	if !t {
-		panic("bool ")
+import (
+	"fmt"
+	"log"
+	"time"
+)
+
+const Debug = false
+
+func DPrintf(format string, a ...interface{}) (n int, err error) {
+	if Debug {
+		log.Printf(format, a...)
 	}
+	return
 }
 
-const (
-	OK             = "OK"
-	ErrNoKey       = "ErrNoKey"
-	ErrWrongLeader = "ErrWrongLeader"
-	ErrTimeout     = "ErrTimeout"
-	ErrOutdated    = "ErrOutdated"
-)
+const ExecuteTimeout = 1000 * time.Millisecond
 
-type MessageType int
+type Err uint8
 
 const (
-	Modify = iota
-	Report
+	Ok Err = iota
+	ErrNoKey
+	ErrWrongLeader
+	ErrTimeout
 )
 
-type Err string
+func (err Err) String() string {
+	switch err {
+	case Ok:
+		return "Ok"
+	case ErrNoKey:
+		return "ErrNoKey"
+	case ErrWrongLeader:
+		return "ErrWrongLeader"
+	case ErrTimeout:
+		return "ErrTimeout"
+	}
+	panic(fmt.Sprintf("unexpected Err %d", err))
+}
 
-type ExecuteCmdArgs struct {
-	Operation string
+type OpType uint8
+
+const (
+	OpPut OpType = iota
+	OpAppend
+	OpGet
+)
+
+func (opType OpType) String() string {
+	switch opType {
+	case OpPut:
+		return "Put"
+	case OpAppend:
+		return "Append"
+	case OpGet:
+		return "Get"
+	}
+	panic(fmt.Sprintf("unexpected OpType %d", opType))
+}
+
+type CommandArgs struct {
 	Key       string
 	Value     string
+	Op        OpType
 	ClientId  int64
-	CmdId     int64
-}
-type ExecuteCmdReply struct {
-	Erro  Err
-	CmdId int64
-	Value string
+	CommandId int64
 }
 
-// Put or Append
-type PutAppendArgs struct {
-	Key   string
-	Value string
-	// You'll have to add definitions here.
-	// Field names must start with capital letters,
-	// otherwise RPC will break.
-	OpId int64
-	Msg  MessageType
+func (args CommandArgs) String() string {
+	return fmt.Sprintf("{Key:%v, Value:%v, Op:%v, ClientId:%v, Id:%v}", args.Key, args.Value, args.Op, args.ClientId, args.CommandId)
 }
 
-type PutAppendReply struct {
+type CommandReply struct {
 	Err   Err
 	Value string
 }
 
-type GetArgs struct {
-	Key string
-	// You'll have to add definitions here.
+func (reply CommandReply) String() string {
+	return fmt.Sprintf("{Err:%v, Value:%v}", reply.Err, reply.Value)
 }
 
-type GetReply struct {
-	Err   Err
-	Value string
+type OperationContext struct {
+	MaxAppliedCommandId int64
+	LastReply           *CommandReply
 }
+
+type Command struct {
+	*CommandArgs
+}
+

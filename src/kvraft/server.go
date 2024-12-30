@@ -1,8 +1,7 @@
 package kvraft
 
 import (
-	"fmt"
-	"log"
+	"bytes"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -12,199 +11,53 @@ import (
 	"6.5840/raft"
 )
 
-const Debug = false
-
-func DPrintf(format string, a ...interface{}) (n int, err error) {
-	if Debug {
-		log.Printf(format, a...)
-	}
-	return
-}
-
-type Operation int
-
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
 }
 
-type Record struct {
-	CmdId     int64
-	Operation string
-	LastReply ExecuteCmdReply
-}
-
 type KVServer struct {
-	mu      sync.Mutex
+	mu      sync.RWMutex
 	me      int
 	rf      *raft.Raft
 	applyCh chan raft.ApplyMsg
 	dead    int32 // set by Kill()
 
 	maxraftstate int // snapshot if log grows this big
+	lastApplied  int //record the last applied index to avoid duplicate apply
 
 	// Your definitions here.
-	records    map[int64]*Record
-	db         map[string]string
-	result_ch  map[int]chan *ExecuteCmdReply
-	last_apply int
+	stateMachine   KVStateMachine
+	lastOperations map[int64]OperationContext
+	notifyChs      map[int]chan *CommandReply
 }
 
-const LockDebug = false
-
-func (kv *KVServer) Lock() {
-	if LockDebug {
-		fmt.Printf("{Server %v} Locking\n", kv.me)
-	}
-	kv.mu.Lock()
+func (kv *KVServer) needSnapshot() bool {
+	return kv.maxraftstate != -1 && kv.rf.GetRaftStateSize() >= kv.maxraftstate
 }
-
-func (kv *KVServer) Unlock() {
-	if LockDebug {
-		fmt.Printf("{Server %v} Unlock\n", kv.me)
-	}
-	kv.mu.Unlock()
+func (kv *KVServer) takeSnapshot(index int) {
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+	e.Encode(kv.stateMachine)
+	e.Encode(kv.lastOperations)
+	data := w.Bytes()
+	kv.rf.Snapshot(index, data)
 }
-func (kv *KVServer) Get(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
-	// Your code here.
-	DPrintf("{Server %v} rpc %v from client_id %v", kv.me, args.Operation, args.ClientId)
-	kv.Lock()
-	if r, ok := kv.records[args.ClientId]; ok && r.CmdId >= args.CmdId {
-		// If this cmd is redundant(cmdId < record.cmdid)
-		DPrintf("{Server %v} old %v client_id %v cmd_id %v key %v value %v", kv.me, args.Operation, args.ClientId, args.CmdId, args.Key, r.LastReply.Value)
-		assert(r.LastReply.Erro == OK)
-		*reply = r.LastReply
-		kv.Unlock()
+func (kv *KVServer) restoreStateFromSnapshot(snapshot []byte) {
+	if snapshot == nil || len(snapshot) == 0 {
 		return
 	}
-	kv.Unlock()
-	index, _, is_leader := kv.rf.Start(*args)
-	if !is_leader {
-		reply.Erro = ErrWrongLeader
-		reply.Value = ""
-		return
+	r := bytes.NewBuffer(snapshot)
+	d := labgob.NewDecoder(r)
+	var stateMachine MemoryKV
+	var lastOperations map[int64]OperationContext
+	if d.Decode(&stateMachine) != nil || d.Decode(&lastOperations) != nil {
+		panic("fail to restore from snapshot")
 	}
-	DPrintf("{Server %v} submit log index %v", kv.me, index)
-	// wait for log apply
-	// applier will send applied log by result_ch
-	kv.Lock()
-	ch := kv.GetResultChannel(index)
-	kv.Unlock()
-	select {
-	case applied := <-ch:
-		assert(applied.Erro == OK)
-		DPrintf("{Server %v} applied.cmdid %v args.cmdid %v", kv.me, applied.CmdId, args.CmdId)
-		assert(applied.CmdId == args.CmdId)
-		reply.Erro = OK
-		reply.Value = applied.Value
-		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
-	case <-time.After(300 * time.Millisecond):
-		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
-		reply.Erro = ErrTimeout
-	}
-	go func() {
-		kv.Lock()
-		defer kv.Unlock()
-		kv.DeleteResultChannel(index)
-	}()
-}
+	kv.stateMachine = &stateMachine
+	kv.lastOperations = lastOperations
 
-func (kv *KVServer) ApplyLog(args *ExecuteCmdArgs) string {
-	switch args.Operation {
-	case "Get":
-		return kv.db[args.Key]
-	case "Put":
-		kv.db[args.Key] = args.Value
-		return args.Value
-	case "Append":
-		kv.db[args.Key] += args.Value
-		return kv.db[args.Key]
-	default:
-		panic(fmt.Sprintf("unknown Operation %v", args.Operation))
-	}
-	return ""
-}
-
-func (kv *KVServer) Put(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
-	// Your code here.
-	DPrintf("{Server %v} rpc %v from client_id %v", kv.me, args.Operation, args.ClientId)
-	kv.Lock()
-	if r, ok := kv.records[args.ClientId]; ok && r.CmdId >= args.CmdId {
-		// If this cmd is redundant(cmdId < record.cmdid)
-		assert(r.LastReply.Erro == OK)
-		*reply = r.LastReply
-		DPrintf("{Server %v} old %v client_id %v cmd_id %v key %v value %v", kv.me, args.Operation, args.ClientId, args.CmdId, args.Key, reply.Value)
-		kv.Unlock()
-		return
-	}
-	kv.Unlock()
-	index, _, is_leader := kv.rf.Start(*args)
-	if !is_leader {
-		reply.Erro = ErrWrongLeader
-		reply.Value = ""
-		return
-	}
-	DPrintf("{Server %v} submit log index %v", kv.me, index)
-	// wait for log apply
-	// no need to consider about snapshot
-	kv.Lock()
-	ch := kv.GetResultChannel(index)
-	kv.Unlock()
-	select {
-	case applied := <-ch:
-		assert(applied.Erro == OK)
-		reply.Erro = OK
-		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
-	case <-time.After(1000 * time.Millisecond):
-		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
-		reply.Erro = ErrTimeout
-	}
-	go func() {
-		kv.Lock()
-		kv.DeleteResultChannel(index)
-		defer kv.Unlock()
-	}()
-}
-
-func (kv *KVServer) Append(args *ExecuteCmdArgs, reply *ExecuteCmdReply) {
-	/// Your code here.
-	DPrintf("{Server %v} rpc %v from client_id %v", kv.me, args.Operation, args.ClientId)
-	kv.Lock()
-	if r, ok := kv.records[args.ClientId]; ok && r.CmdId >= args.CmdId {
-		// If this cmd is redundant(cmdId < record.cmdid)
-		assert(r.LastReply.Erro == OK)
-		*reply = r.LastReply
-		DPrintf("{Server %v} old %v client_id %v cmd_id %v key %v value %v", kv.me, args.Operation, args.ClientId, args.CmdId, args.Key, reply.Value)
-		kv.Unlock()
-		return
-	}
-	kv.Unlock()
-	index, _, is_leader := kv.rf.Start(*args)
-	if !is_leader {
-		reply.Erro = ErrWrongLeader
-		return
-	}
-	DPrintf("{Server %v} submit log index %v", kv.me, index)
-	// wait for log apply
-	// no need to consider about snapshot
-	kv.Lock()
-	ch := kv.GetResultChannel(index)
-	kv.Unlock()
-	select {
-	case applied := <-ch:
-		assert(applied.Erro == OK)
-		reply.Erro = OK
-		DPrintf("{Server %v} reply index %v reply %v", kv.me, index, *reply)
-	case <-time.After(1000 * time.Millisecond):
-		DPrintf("{Server %v} timeout apply log index %v", kv.me, index)
-		reply.Erro = ErrTimeout
-	}
-	go func() {
-		kv.Lock()
-		kv.DeleteResultChannel(index)
-		defer kv.Unlock()
-	}()
 }
 
 // the tester calls Kill() when a KVServer instance won't
@@ -226,6 +79,119 @@ func (kv *KVServer) killed() bool {
 	return z == 1
 }
 
+func (kv *KVServer) isDuplicatedCommand(clientId, commandId int64) bool {
+	operationContext, ok := kv.lastOperations[clientId]
+	return ok && commandId <= operationContext.MaxAppliedCommandId
+}
+
+func (kv *KVServer) ExecuteCommand(args *CommandArgs, reply *CommandReply) {
+	kv.mu.RLock()
+	if args.Op != OpGet && kv.isDuplicatedCommand(args.ClientId, args.CommandId) {
+		lastReply := kv.lastOperations[args.ClientId].LastReply
+		reply.Value, reply.Err = lastReply.Value, lastReply.Err
+		kv.mu.RUnlock()
+		return
+	}
+	kv.mu.RUnlock()
+	index, _, isLeader := kv.rf.Start(Command{args})
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	kv.mu.Lock()
+	ch := kv.getNotifyCh(index)
+	kv.mu.Unlock()
+
+	select {
+	case result := <-ch:
+		reply.Value, reply.Err = result.Value, result.Err
+	case <-time.After(ExecuteTimeout):
+		reply.Err = ErrTimeout
+	}
+	go func() {
+		kv.mu.Lock()
+		kv.deleteNotifyCh(index)
+		kv.mu.Unlock()
+	}()
+}
+
+func (kv *KVServer) getNotifyCh(index int) chan *CommandReply {
+	if _, ok := kv.notifyChs[index]; !ok {
+		kv.notifyChs[index] = make(chan *CommandReply, 1)
+	}
+	return kv.notifyChs[index]
+}
+
+func (kv *KVServer) deleteNotifyCh(index int) {
+	delete(kv.notifyChs, index)
+}
+
+func (kv *KVServer) applyLogToStateMachine(command Command) *CommandReply {
+	reply := new(CommandReply)
+	switch command.Op {
+	case OpGet:
+		reply.Value, reply.Err = kv.stateMachine.Get(command.Key)
+	case OpPut:
+		reply.Err = kv.stateMachine.Put(command.Key, command.Value)
+	case OpAppend:
+		reply.Err = kv.stateMachine.Append(command.Key, command.Value)
+	}
+	return reply
+}
+
+func (kv *KVServer) applier() {
+	for kv.killed() == false {
+		select {
+		case message := <-kv.applyCh:
+			DPrintf("{Node %v} tries to apply message %v", kv.rf.GetId(), message)
+			if message.CommandValid {
+				kv.mu.Lock()
+				if message.CommandIndex <= kv.lastApplied {
+					DPrintf("{Node %v} discards outdated message %v because a newer snapshot which lastApplied is %v has been restored", kv.rf.GetId(), message, kv.lastApplied)
+					kv.mu.Unlock()
+					continue
+				}
+				kv.lastApplied = message.CommandIndex
+
+				reply := new(CommandReply)
+				command := message.Command.(Command) // type assertion
+				if command.Op != OpGet && kv.isDuplicatedCommand(command.ClientId, command.CommandId) {
+					DPrintf("{Node %v} doesn't apply duplicated message %v to stateMachine because maxAppliedCommandId is %v for client %v", kv.rf.GetId(), message, kv.lastOperations[command.ClientId], command.ClientId)
+					reply = kv.lastOperations[command.ClientId].LastReply
+				} else {
+					reply = kv.applyLogToStateMachine(command)
+					if command.Op != OpGet {
+						kv.lastOperations[command.ClientId] = OperationContext{
+							MaxAppliedCommandId: command.CommandId,
+							LastReply:           reply,
+						}
+					}
+				}
+
+				// just notify related channel for currentTerm's log when node is leader
+				if currentTerm, isLeader := kv.rf.GetState(); isLeader && message.CommandTerm == currentTerm {
+					ch := kv.getNotifyCh(message.CommandIndex)
+					ch <- reply
+				}
+				if kv.needSnapshot() {
+					kv.takeSnapshot(message.CommandIndex)
+				}
+				kv.mu.Unlock()
+			} else if message.SnapshotValid {
+				// need apply snapshot
+				kv.mu.Lock()
+				if kv.rf.CondInstallSnapshot(message.SnapshotTerm, message.SnapshotIndex, message.Snapshot) {
+					kv.restoreStateFromSnapshot(message.Snapshot)
+					kv.lastApplied = message.SnapshotIndex
+				}
+				kv.mu.Unlock()
+			} else {
+				panic("unknown msg")
+			}
+		}
+	}
+}
+
 // servers[] contains the ports of the set of
 // servers that will cooperate via Raft to
 // form the fault-tolerant key/value service.
@@ -241,74 +207,20 @@ func (kv *KVServer) killed() bool {
 func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister, maxraftstate int) *KVServer {
 	// call labgob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.
-	labgob.Register(Op{})
-	labgob.Register(ExecuteCmdArgs{})
-	labgob.Register(ExecuteCmdReply{})
-
-	kv := new(KVServer)
-	kv.me = me
-	kv.maxraftstate = maxraftstate
-
+	labgob.Register(Command{})
+	applyCh := make(chan raft.ApplyMsg)
 	// You may need initialization code here.
-
-	kv.applyCh = make(chan raft.ApplyMsg)
-	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
-	kv.result_ch = make(map[int]chan *ExecuteCmdReply)
-	kv.db = make(map[string]string)
-	kv.last_apply = 0
-	kv.records = make(map[int64]*Record)
-
-	// You may need initialization code here.
-	go func() {
-		for {
-			msg := <-kv.applyCh
-			DPrintf("{Server %v} get a msg %v", kv.me, msg.Command)
-			assert(msg.CommandValid)
-			DPrintf("{Server %v} applier recv index %v cmd %v", kv.me, msg.CommandIndex, msg.Command)
-			kv.Lock()
-			assert(kv.last_apply < msg.CommandIndex)
-			args := msg.Command.(ExecuteCmdArgs)
-			DPrintf("{Server %v} apply log %v", kv.me, args)
-			if r, ok := kv.records[args.ClientId]; ok && r.CmdId >= args.CmdId {
-				DPrintf("{Server %v} apply log %v redundant", kv.me, args)
-				kv.Unlock()
-				continue
-			}
-			ret := kv.ApplyLog(&args)
-			if r, ok := kv.records[args.ClientId]; !ok || r == nil {
-				kv.records[args.ClientId] = &Record{
-					LastReply: ExecuteCmdReply{Erro: OK, CmdId: args.CmdId},
-				}
-			}
-			kv.records[args.ClientId].CmdId = args.CmdId
-			kv.records[args.ClientId].Operation = args.Operation
-			kv.records[args.ClientId].LastReply.CmdId = args.CmdId
-			kv.records[args.ClientId].LastReply.Value = ret
-			DPrintf("{Server %v} store last reply %v", kv.me, *kv.records[args.ClientId])
-			kv.last_apply = msg.CommandIndex
-			if _, is_leader := kv.rf.GetState(); is_leader {
-				DPrintf("{Server %v} client_id %v cmd_id %v reply %v sending", kv.me, args.ClientId, args.CmdId, kv.records[args.ClientId].LastReply)
-				reply := &kv.records[args.ClientId].LastReply
-				result_ch := kv.GetResultChannel(msg.CommandIndex)
-				kv.Unlock()
-				result_ch <- reply
-			} else {
-				kv.Unlock()
-			}
-		}
-	}()
-
-	return kv
-}
-func (kv *KVServer) DeleteResultChannel(index int) {
-	DPrintf("{Server %v} delete result_ch %v ", kv.me, index)
-	delete(kv.result_ch, index)
-}
-func (kv *KVServer) GetResultChannel(index int) chan *ExecuteCmdReply {
-	if _, ok := kv.result_ch[index]; !ok {
-		DPrintf("{Server %v} create result_ch %v ", kv.me, index)
-		kv.result_ch[index] = make(chan *ExecuteCmdReply, 1)
+	kv := &KVServer{
+		mu:             sync.RWMutex{},
+		me:             me,
+		rf:             raft.Make(servers, me, persister, applyCh),
+		applyCh:        applyCh,
+		dead:           0,
+		maxraftstate:   maxraftstate,
+		stateMachine:   &MemoryKV{KV: make(map[string]string)},
+		lastOperations: make(map[int64]OperationContext),
+		notifyChs:      make(map[int]chan *CommandReply),
 	}
-	DPrintf("{Server %v} get result_ch %v ", kv.me, index)
-	return kv.result_ch[index]
+	go kv.applier()
+	return kv
 }
