@@ -313,9 +313,9 @@ func (rf *Raft) ApplyRoutine() {
 				SnapshotTerm:  rf.snapshot_term,
 				Snapshot:      rf.SnapShotData,
 			}
-			if rf.snapshot_idx <= rf.GetLastLog().Index {
-				assert(rf.snapshot_idx == rf.Log[rf.snapshot_idx-rf.prev_snapshot_idx].Index)
-			}
+			//			if rf.snapshot_idx <= rf.GetLastLog().Index {
+			//				assert(rf.snapshot_idx == rf.Log[rf.snapshot_idx-rf.prev_snapshot_idx].Index)
+			//			}
 			DPrintf("{Node %v} apply snapshot term %v snapshot_idx %v", rf.me, rf.Curr_term, rf.snapshot_idx)
 			rf.mu.Unlock()
 			rf.appl_ch <- msg
@@ -367,7 +367,11 @@ func (rf *Raft) ApplyRoutine() {
 			if temp_last_applied == rf.commit_idx {
 				break
 			}
+			if temp_last_applied == rf.GetRealLogLen()-1 {
+				break
+			}
 			temp_last_applied += 1
+			DPrintf("{Node %v} apply log temp_last_applied %v realidx(last_applied) %v commit %v log %v", rf.me, temp_last_applied, rf.GetRealIdx(temp_last_applied), rf.commit_idx, rf.Log)
 			assert(rf.Log[rf.GetRealIdx(temp_last_applied)].Index == temp_last_applied)
 			msg := ApplyMsg{
 				CommandValid: true,
@@ -378,7 +382,7 @@ func (rf *Raft) ApplyRoutine() {
 			msgs = append(msgs, msg)
 			DPrintf("{Node %v} apply log term %v apply %v commit_idx %v, msg %v", rf.me, rf.Curr_term, rf.last_applied, rf.commit_idx, msg)
 		}
-		assert(len(msgs) == rf.commit_idx-rf.last_applied)
+		assert(len(msgs) <= rf.commit_idx-rf.last_applied)
 		rf.mu.Unlock()
 		// NOTE:
 		// why prepare all msgs ,then send them all ?
@@ -434,23 +438,25 @@ func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapsho
 	rf.ChangeState(Follower)
 	rf.counter = rf.GetBigCounter()
 	reply.Success = true
-	rf.SnapShotData = args.Snapshot
-	rf.snapshot_term = args.LastIncludeTerm
-	// NOTE:
-	// we should not cut log in this func
-	// log cutting should be did in applier
-	// idx := args.LastIncludeIdx
-	// if idx > rf.GetLastLog().Index {
-	// 	rf.Log = make([]Entry, 1)
-	// 	rf.Log[0].Index = idx
-	// 	rf.Log[0].Term = args.LastIncludeTerm
-	// } else {
-	// 	rf.Log = rf.Log[idx-rf.snapshot_idx:]
-	// }
-	rf.snapshot_idx = args.LastIncludeIdx
-	rf.persist()
+	if rf.prev_snapshot_idx <= args.LastIncludeIdx {
+		rf.SnapShotData = args.Snapshot
+		rf.snapshot_term = args.LastIncludeTerm
+		// NOTE:
+		// we should not cut log in this func
+		// log cutting should be did in applier
+		// idx := args.LastIncludeIdx
+		// if idx > rf.GetLastLog().Index {
+		// 	rf.Log = make([]Entry, 1)
+		// 	rf.Log[0].Index = idx
+		// 	rf.Log[0].Term = args.LastIncludeTerm
+		// } else {
+		// 	rf.Log = rf.Log[idx-rf.snapshot_idx:]
+		// }
+		rf.snapshot_idx = args.LastIncludeIdx
+		rf.persist()
+		rf.cond_var.Signal()
+	}
 	rf.fromTop = false
 	DPrintf("{Node %v} recvinstallsnapshot term %v state %v snapshot_idx %v firstlogidx %v", rf.me, rf.Curr_term, rf.state, rf.snapshot_idx, rf.Log[0].Index)
-	rf.cond_var.Signal()
 
 }

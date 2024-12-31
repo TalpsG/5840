@@ -180,10 +180,8 @@ func (kv *KVServer) applier() {
 			} else if message.SnapshotValid {
 				// need apply snapshot
 				kv.mu.Lock()
-				if kv.rf.CondInstallSnapshot(message.SnapshotTerm, message.SnapshotIndex, message.Snapshot) {
-					kv.restoreStateFromSnapshot(message.Snapshot)
-					kv.lastApplied = message.SnapshotIndex
-				}
+				kv.restoreStateFromSnapshot(message.Snapshot)
+				kv.lastApplied = message.SnapshotIndex
 				kv.mu.Unlock()
 			} else {
 				panic("unknown msg")
@@ -221,6 +219,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 		lastOperations: make(map[int64]OperationContext),
 		notifyChs:      make(map[int]chan *CommandReply),
 	}
+	kv.restoreStateFromSnapshot(persister.ReadSnapshot())
 	go kv.applier()
 	return kv
 }

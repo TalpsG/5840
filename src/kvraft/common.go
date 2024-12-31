@@ -89,4 +89,3 @@ type OperationContext struct {
 type Command struct {
 	*CommandArgs
 }
-

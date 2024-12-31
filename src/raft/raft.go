@@ -129,7 +129,7 @@ type Raft struct {
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetRaftStateSize() int {
-	return rf.persister.SnapshotSize()
+	return rf.persister.RaftStateSize()
 }
 func (rf *Raft) GetState() (int, bool) {
 
@@ -388,43 +388,63 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	reply.Term = rf.Curr_term
 	// log duplication
 	DPrintf("{Node %v} term %v ,nowloglength  %v ,args.loglength %v,args.prevlogidx %v args.LeaderCommit %v rf.commit %v", rf.me, rf.Curr_term, len(rf.Log), len(args.Entries), args.PrevLogIdx, args.LeaderCommit, rf.commit_idx)
+	if args.PrevLogIdx < rf.prev_snapshot_idx {
+		DPrintf("{Node %v} args.prevlogidx %v < prev_snapshot_idx %v", rf.me, args.PrevLogIdx, rf.prev_snapshot_idx)
+		if args.PrevLogIdx+len(args.Entries) > rf.commit_idx {
+			args.Entries = args.Entries[rf.commit_idx-args.PrevLogIdx:]
+			args.PrevLogIdx = rf.commit_idx
+			rf.LogDuplicate(args.PrevLogIdx, args.Entries)
+			DPrintf("{Node %v} term %v commit_idx %v last_applied %v args.LeaderCommit %v loglength %v", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied, args.LeaderCommit, len(rf.Log)-1)
 
-	// step 2: does not contain prevlog
-	if rf.GetRealLogLen()-1 < args.PrevLogIdx {
-		// when a follower not recv A log  in term n
-		// A log commit
-		// then recv hb in term n+1
-		// this follower should duplicate A log by heartbeat
-		reply.Success = false
-	} else if rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term != args.PrevLogTerm {
-		reply.Success = false
-	} else {
-		DPrintf("{Node %v} term %v state %v args.prevlogidx %v GetRealIdx(args.prevlogidx) %v log[rf.GetRealIdx(args.prevlogidx)].index %v", rf.me, rf.Curr_term, rf.state, args.PrevLogIdx, rf.GetRealIdx(args.PrevLogIdx), rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
-		assert(args.PrevLogIdx == rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
-		DPrintf("args.prevlogidx %v arg.prevlogterm %v prevlogidx %v prevlogterm %v", args.PrevLogIdx, args.PrevLogTerm, len(rf.Log)-1, rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term)
-		DPrintf("now prevlogterm %v,args.prevlogterm %v", rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term, args.PrevLogTerm)
-		assert(rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term == args.PrevLogTerm)
-		// NOTE:
-		//  1 2 3 peer ,1 leader
-		//  abc log  commit on 1 2 peer ,not commit but copy to 3 peer
-		//  1 ,2  commit_idx is 1 ,3 is 0
-		//  1 crash ,then 3 could be leader
-		//  in this case 3 LeaderCommit < 2 commit_idx
-
-		// NOTE:
-		// log duplication not just append
-		rf.LogDuplicate(args.PrevLogIdx, args.Entries)
-		DPrintf("{Node %v} term %v commit_idx %v last_applied %v args.LeaderCommit %v loglength %v", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied, args.LeaderCommit, len(rf.Log)-1)
-
-		if args.LeaderCommit > rf.commit_idx {
-			rf.commit_idx = Min(args.LeaderCommit, rf.GetRealLogLen()-1)
-		}
-		if rf.commit_idx > rf.last_applied {
-			DPrintf("{Node %v} term %v commit_idx %v last_applied %v signal", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied)
-			rf.cond_var.Signal()
+			if args.LeaderCommit > rf.commit_idx {
+				rf.commit_idx = Min(args.LeaderCommit, rf.GetRealLogLen()-1)
+			}
+			if rf.commit_idx > rf.last_applied {
+				DPrintf("{Node %v} term %v commit_idx %v last_applied %v signal", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied)
+				rf.cond_var.Signal()
+			}
 		}
 		reply.Success = true
+	} else {
+		// step 2: does not contain prevlog
+		if rf.GetRealLogLen()-1 < args.PrevLogIdx {
+			// when a follower not recv A log  in term n
+			// A log commit
+			// then recv hb in term n+1
+			// this follower should duplicate A log by heartbeat
+			reply.Success = false
+		} else if rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term != args.PrevLogTerm {
+			reply.Success = false
+		} else {
+			DPrintf("{Node %v} term %v state %v args.prevlogidx %v GetRealIdx(args.prevlogidx) %v log[rf.GetRealIdx(args.prevlogidx)].index %v", rf.me, rf.Curr_term, rf.state, args.PrevLogIdx, rf.GetRealIdx(args.PrevLogIdx), rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
+			assert(args.PrevLogIdx == rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Index)
+			DPrintf("args.prevlogidx %v arg.prevlogterm %v prevlogidx %v prevlogterm %v", args.PrevLogIdx, args.PrevLogTerm, len(rf.Log)-1, rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term)
+			DPrintf("now prevlogterm %v,args.prevlogterm %v", rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term, args.PrevLogTerm)
+			assert(rf.Log[rf.GetRealIdx(args.PrevLogIdx)].Term == args.PrevLogTerm)
+			// NOTE:
+			//  1 2 3 peer ,1 leader
+			//  abc log  commit on 1 2 peer ,not commit but copy to 3 peer
+			//  1 ,2  commit_idx is 1 ,3 is 0
+			//  1 crash ,then 3 could be leader
+			//  in this case 3 LeaderCommit < 2 commit_idx
+
+			// NOTE:
+			// log duplication not just append
+			rf.LogDuplicate(args.PrevLogIdx, args.Entries)
+			DPrintf("{Node %v} term %v commit_idx %v last_applied %v args.LeaderCommit %v loglength %v", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied, args.LeaderCommit, len(rf.Log)-1)
+
+			if args.LeaderCommit > rf.commit_idx {
+				rf.commit_idx = Min(args.LeaderCommit, rf.GetRealLogLen()-1)
+			}
+			if rf.commit_idx > rf.last_applied {
+				DPrintf("{Node %v} term %v commit_idx %v last_applied %v signal", rf.me, rf.Curr_term, rf.commit_idx, rf.last_applied)
+				rf.cond_var.Signal()
+			}
+			reply.Success = true
+		}
+
 	}
+
 	// NOTE save
 	rf.persist()
 	rf.counter = rf.GetBigCounter()
