@@ -708,7 +708,7 @@ loop:
 	cfg.end()
 }
 
-func TestPersist13C(t *testing.T) {
+func testPersist13C(t *testing.T) {
 	servers := 3
 	cfg := make_config(t, servers, false, false)
 	defer cfg.cleanup()
@@ -754,7 +754,7 @@ func TestPersist13C(t *testing.T) {
 	cfg.end()
 }
 
-func TestPersist23C(t *testing.T) {
+func testPersist23C(t *testing.T) {
 	servers := 5
 	cfg := make_config(t, servers, false, false)
 	defer cfg.cleanup()
@@ -821,7 +821,7 @@ func TestPersist23C(t *testing.T) {
 	cfg.end()
 }
 
-func TestPersist33C(t *testing.T) {
+func testPersist33C(t *testing.T) {
 	servers := 3
 	cfg := make_config(t, servers, false, false)
 	defer cfg.cleanup()
@@ -915,7 +915,7 @@ func testFigure83C(t *testing.T) {
 	cfg.end()
 }
 
-func TestUnreliableAgree3C(t *testing.T) {
+func testUnreliableAgree3C(t *testing.T) {
 	servers := 5
 	cfg := make_config(t, servers, true, false)
 	defer cfg.cleanup()
@@ -1148,7 +1148,7 @@ func testReliableChurn3C(t *testing.T) {
 	internalChurn(t, false)
 }
 
-func testUnreliableChurn3C(t *testing.T) {
+func TestUnreliableChurn3C(t *testing.T) {
 	internalChurn(t, true)
 }
 

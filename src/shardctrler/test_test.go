@@ -90,15 +90,18 @@ func TestBasic(t *testing.T) {
 
 		cfa[0] = ck.Query(-1)
 
+		println("1")
 		check(t, []int{}, ck)
 
 		var gid1 int = 1
 		ck.Join(map[int][]string{gid1: []string{"x", "y", "z"}})
+		println("2")
 		check(t, []int{gid1}, ck)
 		cfa[1] = ck.Query(-1)
 
 		var gid2 int = 2
 		ck.Join(map[int][]string{gid2: []string{"a", "b", "c"}})
+		println("3")
 		check(t, []int{gid1, gid2}, ck)
 		cfa[2] = ck.Query(-1)
 
@@ -113,6 +116,7 @@ func TestBasic(t *testing.T) {
 		}
 
 		ck.Leave([]int{gid1})
+		println("4")
 		check(t, []int{gid2}, ck)
 		cfa[4] = ck.Query(-1)
 
