@@ -180,8 +180,10 @@ func (kv *KVServer) applier() {
 			} else if message.SnapshotValid {
 				// need apply snapshot
 				kv.mu.Lock()
-				kv.restoreStateFromSnapshot(message.Snapshot)
-				kv.lastApplied = message.SnapshotIndex
+				if kv.rf.CondInstallSnapshot(message.SnapshotTerm, message.SnapshotIndex, message.Snapshot) {
+					kv.restoreStateFromSnapshot(message.Snapshot)
+					kv.lastApplied = message.SnapshotIndex
+				}
 				kv.mu.Unlock()
 			} else {
 				panic("unknown msg")

@@ -169,7 +169,7 @@ func (rf *Raft) StartElect() {
 							rf.ChangeState(Leader)
 							rf.counter = rf.GetSmallCounter()
 							rf.BroadCastHB()
-							// rf.persist()
+							rf.persist()
 						}
 					}
 				}
