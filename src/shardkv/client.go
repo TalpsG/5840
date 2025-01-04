@@ -38,6 +38,8 @@ type Clerk struct {
 	config   shardctrler.Config
 	make_end func(string) *labrpc.ClientEnd
 	// You will have to modify this struct.
+	cmd_id    int64
+	client_id int64
 }
 
 // the tester calls MakeClerk.
@@ -52,6 +54,9 @@ func MakeClerk(ctrlers []*labrpc.ClientEnd, make_end func(string) *labrpc.Client
 	ck.sm = shardctrler.MakeClerk(ctrlers)
 	ck.make_end = make_end
 	// You'll have to add code here.
+	ck.config = ck.sm.Query(-1)
+	ck.client_id = nrand()
+	ck.cmd_id = 1
 	return ck
 }
 
@@ -60,8 +65,11 @@ func MakeClerk(ctrlers []*labrpc.ClientEnd, make_end func(string) *labrpc.Client
 // keeps trying forever in the face of all other errors.
 // You will have to modify this function.
 func (ck *Clerk) Get(key string) string {
-	args := GetArgs{}
-	args.Key = key
+	args := GetArgs{
+		Key:      key,
+		CmdId:    ck.cmd_id,
+		ClientId: ck.client_id,
+	}
 
 	for {
 		shard := key2shard(key)
@@ -73,9 +81,12 @@ func (ck *Clerk) Get(key string) string {
 				var reply GetReply
 				ok := srv.Call("ShardKV.Get", &args, &reply)
 				if ok && (reply.Err == OK || reply.Err == ErrNoKey) {
+					ck.cmd_id++
+					DPrintf("{ShardKV client %v} Get %v value %v", ck.client_id, key, reply.Value)
 					return reply.Value
 				}
 				if ok && (reply.Err == ErrWrongGroup) {
+					DPrintf("{ShardKV client %v} Get %v gid %v wronggourp", ck.client_id, key, gid)
 					break
 				}
 				// ... not ok, or ErrWrongLeader
@@ -84,6 +95,7 @@ func (ck *Clerk) Get(key string) string {
 		time.Sleep(100 * time.Millisecond)
 		// ask controller for the latest configuration.
 		ck.config = ck.sm.Query(-1)
+		DPrintf("{ShardKV client %v} Get %v queryconfig %v", ck.client_id, key, ck.config)
 	}
 
 	return ""
@@ -92,11 +104,13 @@ func (ck *Clerk) Get(key string) string {
 // shared by Put and Append.
 // You will have to modify this function.
 func (ck *Clerk) PutAppend(key string, value string, op string) {
-	args := PutAppendArgs{}
-	args.Key = key
-	args.Value = value
-	args.Op = op
-
+	args := PutAppendArgs{
+		Key:      key,
+		Value:    value,
+		Op:       op,
+		CmdId:    ck.cmd_id,
+		ClientId: ck.client_id,
+	}
 
 	for {
 		shard := key2shard(key)
@@ -107,6 +121,8 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 				var reply PutAppendReply
 				ok := srv.Call("ShardKV.PutAppend", &args, &reply)
 				if ok && reply.Err == OK {
+					ck.cmd_id++
+					DPrintf("{ShardKV client %v} %v %v value %v", ck.client_id, op, key, value)
 					return
 				}
 				if ok && reply.Err == ErrWrongGroup {

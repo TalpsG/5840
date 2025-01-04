@@ -196,6 +196,7 @@ func TestJoinLeave5B(t *testing.T) {
 		check(t, ck, ka[i], va[i])
 	}
 
+	fmt.Println("debug join1")
 	cfg.join(1)
 
 	for i := 0; i < n; i++ {
@@ -205,6 +206,7 @@ func TestJoinLeave5B(t *testing.T) {
 		va[i] += x
 	}
 
+	fmt.Println("debug leave0")
 	cfg.leave(0)
 
 	for i := 0; i < n; i++ {
@@ -218,9 +220,11 @@ func TestJoinLeave5B(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	cfg.checklogs()
+	fmt.Println("debug ShutdownGroup 0")
 	cfg.ShutdownGroup(0)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check ", i, ka[i], va[i])
 		check(t, ck, ka[i], va[i])
 	}
 
@@ -235,6 +239,7 @@ func TestSnapshot5B(t *testing.T) {
 
 	ck := cfg.makeClient(cfg.ctl)
 
+	fmt.Println("debug join0")
 	cfg.join(0)
 
 	n := 30
@@ -249,8 +254,11 @@ func TestSnapshot5B(t *testing.T) {
 		check(t, ck, ka[i], va[i])
 	}
 
+	fmt.Println("debug join1")
 	cfg.join(1)
+	fmt.Println("debug join2")
 	cfg.join(2)
+	fmt.Println("debug leave0")
 	cfg.leave(0)
 
 	for i := 0; i < n; i++ {
@@ -260,7 +268,9 @@ func TestSnapshot5B(t *testing.T) {
 		va[i] += x
 	}
 
+	fmt.Println("debug leave1")
 	cfg.leave(1)
+	fmt.Println("debug join0")
 	cfg.join(0)
 
 	for i := 0; i < n; i++ {
@@ -273,6 +283,8 @@ func TestSnapshot5B(t *testing.T) {
 	time.Sleep(1 * time.Second)
 
 	for i := 0; i < n; i++ {
+
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 	}
 
@@ -280,15 +292,22 @@ func TestSnapshot5B(t *testing.T) {
 
 	cfg.checklogs()
 
+	fmt.Println("debug shutdowngroup0")
 	cfg.ShutdownGroup(0)
+	fmt.Println("debug shutdowngroup1")
 	cfg.ShutdownGroup(1)
+	fmt.Println("debug shutdowngroup2")
 	cfg.ShutdownGroup(2)
 
+	fmt.Println("debug startgroup0")
 	cfg.StartGroup(0)
+	fmt.Println("debug startgroup1")
 	cfg.StartGroup(1)
+	fmt.Println("debug startgroup2")
 	cfg.StartGroup(2)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 	}
 
@@ -303,6 +322,7 @@ func TestMissChange5B(t *testing.T) {
 
 	ck := cfg.makeClient(cfg.ctl)
 
+	fmt.Println("debug join 0")
 	cfg.join(0)
 
 	n := 10
@@ -314,40 +334,54 @@ func TestMissChange5B(t *testing.T) {
 		ck.Put(ka[i], va[i])
 	}
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 	}
 
 	cfg.join(1)
 
+	fmt.Println("debug shutdown 0 0")
 	cfg.ShutdownServer(0, 0)
+	fmt.Println("debug shutdown 1 0")
 	cfg.ShutdownServer(1, 0)
+	fmt.Println("debug shutdown 2 0")
 	cfg.ShutdownServer(2, 0)
 
+	fmt.Println("debug join 2")
 	cfg.join(2)
+	fmt.Println("debug leave 1")
 	cfg.leave(1)
+	fmt.Println("debug leave 0")
 	cfg.leave(0)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
 
+	fmt.Println("debug join 1")
 	cfg.join(1)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
 
+	fmt.Println("debug startserver 0 0")
 	cfg.StartServer(0, 0)
+	fmt.Println("debug startserver 1 0")
 	cfg.StartServer(1, 0)
+	fmt.Println("debug startserver 2 0")
 	cfg.StartServer(2, 0)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
@@ -356,25 +390,35 @@ func TestMissChange5B(t *testing.T) {
 
 	time.Sleep(2 * time.Second)
 
+	fmt.Println("debug shutdown 0 0")
 	cfg.ShutdownServer(0, 1)
+	fmt.Println("debug shutdown 1 0")
 	cfg.ShutdownServer(1, 1)
+	fmt.Println("debug shutdown 2 0")
 	cfg.ShutdownServer(2, 1)
 
+	fmt.Println("debug join 0")
 	cfg.join(0)
+	fmt.Println("debug join 2")
 	cfg.leave(2)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 		x := randstring(20)
 		ck.Append(ka[i], x)
 		va[i] += x
 	}
 
+	fmt.Println("debug startserver 0 1")
 	cfg.StartServer(0, 1)
+	fmt.Println("debug startserver 1 1")
 	cfg.StartServer(1, 1)
+	fmt.Println("debug startserver 2 1")
 	cfg.StartServer(2, 1)
 
 	for i := 0; i < n; i++ {
+		fmt.Println("debug check", i)
 		check(t, ck, ka[i], va[i])
 	}
 

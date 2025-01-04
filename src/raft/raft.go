@@ -677,3 +677,8 @@ func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int,
 
 	return true
 }
+func (rf *Raft) HaveCurrentTermLog() bool {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+	return rf.GetLastLog().Term == rf.Curr_term
+}

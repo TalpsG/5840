@@ -1,7 +1,6 @@
 package shardctrler
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -303,7 +302,6 @@ func (sc *ShardCtrler) executeJoin(op Op) Err {
 
 	newconfig.Shards = shardBalance(newgroups, last.Shards)
 	sc.configs = append(sc.configs, newconfig)
-	fmt.Println(newconfig.Shards)
 	return OK
 }
 func (sc *ShardCtrler) executeQuery(op Op) (Err, Config) {
